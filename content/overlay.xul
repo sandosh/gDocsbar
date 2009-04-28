@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://emptysidebar/locale/emptysidebar.dtd">
+<overlay id="emptySidebarOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  
+  <menupopup id="viewSidebarMenu">
+    <menuitem key="key_openEmptySidebar" observes="viewEmptySidebar"  />
+  </menupopup>
+  
+  <keyset id="mainKeyset">
+    <key id="key_openEmptySidebar" command="viewEmptySidebar"
+         key="Y" 
+         modifiers="shift accesl" />
+  </keyset>
+  
+  <broadcasterset id="mainBroadcasterSet"> 
+    <broadcaster id="viewEmptySidebar" 
+                 label="gDocsBar"
+                 autoCheck="false"
+                 type="checkbox"
+                 group="sidebar"
+                 sidebarurl="chrome://gdocsbar/content/sidebar.xul"
+                 sidebartitle="gDocsBar"
+                 oncommand="toggleSidebar('viewEmptySidebar');" />
+  </broadcasterset>
+</overlay>

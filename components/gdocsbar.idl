@@ -1,0 +1,18 @@
+#include "nsISupports.idl" 
+#include "nsIObserver.idl"
+#include "nsIDOMElement.idl"
+
+interface nsIObserver;
+
+[scriptable, uuid(C400B1A9-DC18-4615-ADB3-1E4FDCC44048)]
+interface nsIGdocsBar: nsISupports
+{
+    void init();
+	void reload();
+	void sayHello();
+	string getSignedRequestHeader();
+	nsISupports setupRequest(in string url, in string signed);
+	
+	void login(in string email, in string password, in string captchaValue);
+};
+

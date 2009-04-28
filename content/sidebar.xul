@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css" ?>
+<?xml-stylesheet href="chrome://browser/skin/browser.css" type="text/css" ?>
+<window title="gDocsBar"
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
+	windowtype="SideBar" 
+	persist="screenX screenY width height sizemode"
+    screenX="10" screenY="10"
+	id="sbGdocsbar" width="250">
+	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/misc.js" />
+	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/utils.js" />
+	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/sidebar.js" />
+	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/init.js" />
+	
+	<script type="application/x-javascript">
+	  <![CDATA[
+		  function sayHello() {
+		        Components.classes['@gdocsbar.com/gdocsbar;1'].getService(Components.interfaces.nsIGdocsBar).sayHello();
+		    }
+	]]>
+	  </script>
+<page id="gDocsList" title="List">
+	<vbox id="gDocsList_list">
+		<hbox>
+			<label value="File name" />
+		</hbox>
+	</vbox>
+</page>
+<page id="gDocsBarLogin" title="hello"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" style="background-color:white;">
+		
+<vbox flex="1">
+	<vbox id="le_holder">
+		<label value="username or password is incorrect" id="le_BadAuthentication" collapsed="true"/>
+		<label value="The account email address has not been verified. Use your Google account directly to resolve the issue before logging in using a non-Google application." id="le_NotVerified" collapsed="true" />
+		<label value="You have not agreed to terms. You will need to access your Google account directly to resolve the issue before logging in using a non-Google application. " id="le_TermsNotAgreed" collapsed="true" />
+		<label value="Unknown error" id="le_Unknown" collapsed="true" />
+		<label value="This user account has been deleted." id="le_AccountDeleted" collapsed="true" />
+		<label value="This user account has been disabled." id="le_AccountDisabled" collapsed="true" />
+		<label value="Your access to the specified service has been disabled. (The user account may still be valid.) " id="le_ServiceDisabled" collapsed="true" />
+		<label value="The service is not available; try again later." id="le_ServiceUnavailable" collapsed="true" />
+		<vbox id="le_CaptchaRequired" collapsed="true">
+			<image width="200" height="70" id="captcha_image"/>
+			<textbox id="captcha_textbox" emptytext="Enter the text shown above"/>
+		</vbox>
+	</vbox>
+	<textbox emptytext="Email" id="email" maxwidth="200"/>
+	<textbox emptytext="Password" id="password"  maxwidth="200" type="password"/>
+	<hbox align="center">
+		<button label="Login" oncommand="gbar.login();" id="login_btn"/><label value="cancel" class="text-link" onclick="gbar.cancelLogin()" collapsed="true"/>
+	</hbox>
+</vbox>
+</page>
+</window>

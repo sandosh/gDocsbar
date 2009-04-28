@@ -1,0 +1,2 @@
+content	gdocsbar content/
+overlay chrome://browser/content/browser.xul chrome://gdocsbar/content/overlay.xul
