@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE window [
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	xmlns:html="http://www.w3.org/1999/xhtml">
+
+<binding id="document" extends="xul:vbox">
+	<content>
+		<xul:hbox style="overflow-x:hidden;" mode="displayandedit">
+			<xul:description xbl:inherits="xbl:text=name" class="name"/>
+		</xul:hbox>
+		<html:div mode="display" class="folders" anonid="folders" collapsed="true">
+		</html:div>
+		<xul:hbox align="center" style="margin-top:5px;" mode="display" flex="1">
+			<xul:gicon xbl:inherits="class=star"/><xul:label xbl:inherits="value=datetime" class="date" /><xul:label maxwidth="80" crop="end" xbl:inherits="value=author" class="date text-link" /><xul:spacer flex="1" /><xul:gicon class="options" popup="gdocumentmenu" tooltiptext="Actions"/><xul:gicon class="more" tooltiptext="More information"/>
+		</xul:hbox>
+		<xul:vbox mode="edit" style="margin-left:0px;">
+			<xul:textbox />
+			<xul:hbox align="center">
+				<xul:button label="save" /><xul:label class="text-link" value="cancel" />
+			</xul:hbox>
+		</xul:vbox>
+	</content>
+</binding>	
+
+<binding id="gicon" extends="xul:label"/>
+
+<binding id="gfolder" extends="xul:hbox">
+	<content>
+		<xul:gicon class="folder" /><xul:label value="folder name" />
+	</content>
+</binding>
+</bindings>

@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css" ?>
 <?xml-stylesheet href="chrome://browser/skin/browser.css" type="text/css" ?>
+<?xml-stylesheet href="chrome://gdocsbar/skin/gdocsbar.css" type="text/css" ?>
 <window title="gDocsBar"
 	xmlns:html="http://www.w3.org/1999/xhtml"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
@@ -20,15 +21,94 @@
 		    }
 	]]>
 	  </script>
-<page id="gDocsList" title="List">
-	<vbox id="gDocsList_list">
-		<hbox>
-			<label value="File name" />
-		</hbox>
+	<menupopup id="gdocumentmenu" minwidth="150">
+	  <menuitem label="Star"><gicon class="star" /><label value="Star" /></menuitem>
+	  <menuitem label="Share"><gicon class="share" /><label value="Share" /></menuitem>
+	  <menuitem label="Move to"><gicon class="move" /><label value="Move to" /></menuitem>
+	  <menuitem label="Hide"><gicon class="hide" /><label value="Hide" /></menuitem>
+	  <menuitem label="Delete"><gicon class="delete" /><label value="Delete" /></menuitem>
+	  <menuitem label="Rename"><gicon /><label value="Rename" /></menuitem>
+	<menuitem label="Change Owner"><gicon /><label value="Change Owner" /></menuitem>
+	<menuitem label="Manage sharing"><gicon /><label value="Manage sharing" /></menuitem>
+	<menuitem label="View the published version"><gicon /><label value="View the published version" /></menuitem>
+	<menuitem label="Preview"><gicon /><label value="Preview" /></menuitem>
+	<menuseparator/>
+	<menu id="saveas-menu" label="Save as">
+	      
+	    
+	
+   
+	<menupopup>
+	<menuitem label="HTML (zipped)"><gicon /><label value="HTML (zipped)" /></menuitem>
+	<menuitem label="OpenDocument"><gicon /><label value="OpenDocument" /></menuitem>
+	<menuitem label="Open Office"><gicon /><label value="Open Office" /></menuitem>
+	<menuitem label="Excel"><gicon /><label value="Excel" /></menuitem>
+	<menuitem label="PDF"><gicon /><label value="PDF" /></menuitem>
+	<menuitem label="PPT"><gicon /><label value="PPT" /></menuitem>
+	<menuitem label="Text"><gicon /><label value="Text" /></menuitem>
+	<menuitem label="RTF"><gicon /><label value="RTF" /></menuitem>
+	<menuitem label="Text"><gicon /><label value="Text" /></menuitem>
+	<menuitem label="Word"><gicon /><label value="Word" /></menuitem>
+	</menupopup>
+	</menu>
+	<menuseparator/>
+	<menuitem label="Publish"><gicon /><label value="Publish" /></menuitem>
+	</menupopup>
+	
+	
+	<menupopup id="gdocumentlistmenu" position="after_end">
+		<menuitem label="All"><gicon class="all"/><label value="All" /></menuitem>
+		<menuitem label="Owned by me"><gicon class="edit"/><label value="Owned by me" /></menuitem>
+		<menuitem label="Opened by me"><gicon class="edit"/><label value="Opened by me" /></menuitem>
+		<menuitem label="Starred"><gicon class="star"/><label value="Starred" /></menuitem>
+		<menuitem label="Hidden"><gicon class="hidden"/><label value="Hidden" /></menuitem>
+		<menuitem label="Trashed"><gicon class="delete"/><label value="Trashed" /></menuitem>
+	</menupopup>
+	
+<page id="gDocsList" title="List" flex="1">
+	<hbox class="title">
+		<hbox popup="gdocumentlistmenu"><gicon class="all"/><label value="All" /><gicon class="down" /></hbox>
+	</hbox>
+	<vbox id="gDocsList_list" flex="2">
+			<gdocument context="gdocumentmenu" class="doc display" name="sandosh vasudevan.doc" star="star" datetime="May 21" author="brandon.powell"/>
+			<gdocument context="gdocumentmenu" class="pres display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="pdf display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="spread display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="doc display" name="sandosh vasudevan.doc" star="star" datetime="May 21" author="brandon.powell"/>
+			<gdocument context="gdocumentmenu" class="pres display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="pdf display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="spread display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="doc display" name="sandosh vasudevan.doc" star="star" datetime="May 21" author="brandon.powell"/>
+			<gdocument context="gdocumentmenu" class="pres display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="pdf display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="spread display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="doc display" name="sandosh vasudevan.doc" star="star" datetime="May 21" author="brandon.powell"/>
+			<gdocument context="gdocumentmenu" class="pres display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="pdf display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="spread display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="doc display" name="sandosh vasudevan.doc" star="star" datetime="May 21" author="brandon.powell"/>
+			<gdocument context="gdocumentmenu" class="pres display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="pdf display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="spread display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="doc display" name="sandosh vasudevan.doc" star="star" datetime="May 21" author="brandon.powell"/>
+			<gdocument context="gdocumentmenu" class="pres display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="pdf display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+			<gdocument context="gdocumentmenu" class="spread display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
+
+	</vbox>
+	<splitter collapse="before" resizeafter="farthest" collapsed="true">
+	  </splitter>
+	<hbox class="title">
+		<gicon class="folder" /><label value="Folders" />
+	</hbox>
+	<vbox id="gDocsList_folders">
+		<gfolder />
+		<gfolder />
+		<gfolder />
 	</vbox>
 </page>
 <page id="gDocsBarLogin" title="hello"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" style="background-color:white;">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" style="background-color:white;" collapsed="true">
 		
 <vbox flex="1">
 	<vbox id="le_holder">
@@ -45,8 +125,8 @@
 			<textbox id="captcha_textbox" emptytext="Enter the text shown above"/>
 		</vbox>
 	</vbox>
-	<textbox emptytext="Email" id="email" maxwidth="200"/>
-	<textbox emptytext="Password" id="password"  maxwidth="200" type="password"/>
+	<textbox emptytext="Email" id="email"/>
+	<textbox emptytext="Password" id="password" type="password"/>
 	<hbox align="center">
 		<button label="Login" oncommand="gbar.login();" id="login_btn"/><label value="cancel" class="text-link" onclick="gbar.cancelLogin()" collapsed="true"/>
 	</hbox>

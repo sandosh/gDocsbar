@@ -1,2 +1,3 @@
 content	gdocsbar content/
+skin	gdocsbar	classic/1.0	skin/
 overlay chrome://browser/content/browser.xul chrome://gdocsbar/content/overlay.xul

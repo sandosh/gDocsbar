@@ -32,8 +32,8 @@ GDOCSBARUtils.ns(function(){ with(GDOCSBARUtils){
         initLoggedInUser: function(){
             page_login.setAttribute('collapsed', true);
             page_list.setAttribute('collapsed', false);
-            this.getFullDocList();
-            //this.getFolderList();
+            //this.getFullDocList();
+            this.getFolderList();
         },
         getFullDocList: function(){
             debug("setting up requests...");
@@ -44,7 +44,7 @@ GDOCSBARUtils.ns(function(){ with(GDOCSBARUtils){
         	    if (req.readyState == 4) {
         	        
         		     if(req.status == 200){
-        		         debug(req.responseText);
+        		         //debug(req.responseText);
              	         debug(req.status);
         	         }else{
         	             
@@ -56,14 +56,14 @@ GDOCSBARUtils.ns(function(){ with(GDOCSBARUtils){
         },
         getFolderList: function(){
             
-            req = gbarc.setupRequest("http://docs.google.com/feeds/documents/private/full/-/folder?showfolders=true", true);
+            req = gbarc.setupRequest("http://docs.google.com/feeds/documents/private/full/-/folder?showfolders=true&alt=json", true);
             req = req.wrappedJSObject;
             //debug(req);
             req.onreadystatechange = (function (aEvt) {
         	    if (req.readyState == 4) {
         	        
         		     if(req.status == 200){
-        		         //debug(req.responseText);
+        		         debug(req.responseText);
              	         debug(req.status);
         	         }else{
         	             
