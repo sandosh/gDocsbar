@@ -1,56 +1,40 @@
-function GDOCSBARUtils() {}
-
-(function(){
-    var _CI = Components.interfaces;
-    var _CC = Components.classes;
-    var namespaces = [];
-
-    this.CC = function(cName)
+GDOCSBARUtils = new Base;
+GDOCSBARUtils.extend({
+    _CI: Components.interfaces,
+    _CC: Components.classes,
+    CC: function(cName)
     {
-        return _CC[cName];
-    };
-
-    this.CI = function(ifaceName)
+        return this._CC[cName];
+    },
+    CI: function(ifaceName)
     {
-        return _CI[ifaceName];
-    };
-
-    this.CCSV = function(cName, ifaceName)
+        return this._CI[ifaceName];
+    },
+    CCSV: function(cName, ifaceName)
     {
-        //dump(cName);
-        //dump(ifaceName);
-        return _CC[cName].getService(_CI[ifaceName]);
-    };
-
-    this.CCIN = function(cName, ifaceName)
-    {
-        return _CC[cName].createInstance(_CI[ifaceName]);
-    };
-
-    this.QI = function(obj, iface)
-    {
-        return obj.QueryInterface(iface);
-    };
-
-    this.ns = function(fn)
-    {
-        var ns = {};
-        namespaces.push(fn, ns);
-        return ns;
-    };
-
-    this.initialize = function()
-    {
-        for (var i = 0; i < namespaces.length; i += 2)
-        {
-            var fn = namespaces[i];
-            var ns = namespaces[i+1];
-            fn.apply(ns);
-        }
-
-    };
-    
-    this.$ = function(id){
+        return this._CC[cName].getService(this._CI[ifaceName]);
+    },
+    $: function(id){
         return document.getElementById(id);
+    },
+    zeroPadding: function(number){
+        return (number.toString().length == 1 ? "0"+number.toString() : number);
+    },
+    addClass: function(el, cls, forceBefore) {
+            if(forceBefore != null && el.className.match(new RegExp('(^| )' + forceBefore))) {
+                    el.className = el.className.replace(new RegExp("( |^)" + forceBefore), '$1' + cls + ' ' + forceBefore);
+
+            } else if(!el.className.match(new RegExp('(^| )' + cls + '($| )'))) {
+                    el.className += ' ' + cls;
+                    el.className = el.className.replace(/(^ +)|( +$)/g, '');
+            }
+    },
+    removeClass: function(el, cls) {
+            var old = el.className;
+            var newCls = ' ' + el.className + ' ';
+            newCls = newCls.replace(new RegExp(' (' + cls + ' +)+','g'), ' ');
+            el.className = newCls.replace(/(^ +)|( +$)/g, '');
     }
-}).apply(GDOCSBARUtils);
+    
+});
+

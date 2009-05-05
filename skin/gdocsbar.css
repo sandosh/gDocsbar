@@ -68,16 +68,16 @@ gdocument description:hover{
     color:blue;
 }
 
-gdocument.doc{
+gdocument.document{
     background-image:url(chrome://gdocsbar/content/images/icon/icon_4_doc.gif);
 }
-gdocument.pres{
+gdocument.presentation, gicon.presentation{
     background-image:url(chrome://gdocsbar/content/images/icon/icon_4_pres.gif);
 }
 gdocument.pdf{
     background-image:url(chrome://gdocsbar/content/images/icon/icon_4_pdf.gif);
 }
-gdocument.spread{
+gdocument.spreadsheet{
     background-image:url(chrome://gdocsbar/content/images/icon/icon_4_spread.gif);
 }
 
@@ -122,7 +122,7 @@ gicon.hide{
 gicon.delete{
     background-position: -96px center;
 }
-gicon.nostar{
+gicon.nostar, gicon.star:hover{
     background-position: -304px center;
 }
 gicon.more{
@@ -144,6 +144,10 @@ gicon.down{
     background-position: -480px center;
 }
 
+gicon.search{
+    background:transparent url(chrome://gdocsbar/content/images/icon/search.png) no-repeat center center;
+}
+
 
 gfolder{
     -moz-binding:url(chrome://gdocsbar/content/styles/bindings.xml#gfolder);
@@ -157,3 +161,87 @@ vbox#gDocsList_folders > gfolder:nth-child(2n+1){
 vbox#gDocsList_folders > gfolder:nth-child(2n){
     background-color:#000;
 }
+
+moreloader{
+    -moz-binding:url(chrome://gdocsbar/content/styles/bindings.xml#moreloader);
+    padding:5px;
+    background-color:#EFEFEF;
+    cursor:pointer !important;
+    border-top:1px solid #FFF;
+}
+moreloader *{
+    cursor:pointer !important;
+}
+moreloader > stack[anonid=loading]{
+    display:none;
+}
+
+moreloader label{
+    font-weight:bold;
+    font-size:9pt;
+}
+
+moreloader.loading{
+    background:#EFEFEF url(chrome://gdocsbar/content/images/loading-EFEFEF-666.gif) no-repeat 10px center;
+}
+
+moreloader.loading > stack{
+    margin-left:25px;
+}
+
+moreloader.loading > stack[anonid=loading]{
+    display:-moz-stack;
+}
+moreloader.loading > stack[anonid=stack]{
+    display:none;
+}
+
+
+
+gdlistholder{
+    -moz-binding:url(chrome://gdocsbar/content/styles/bindings.xml#gdlistholder);
+    -moz-box-orient:vertical;
+    
+}
+
+gdlistholder.loading hbox.listdetail .emptytext, gdlistholder.loading hbox.listdetail .nonemptytext{
+    display:none;
+} 
+
+hbox.listdetail{
+    padding:5px 10px;
+    border-bottom: 1px solid #aaa;
+}
+hbox.nonemptytext > label{
+    margin-left:0px;
+    color:#999;
+    font-weight:bold;
+}
+
+gicon.refresh{
+    background-image:url(chrome://gdocsbar/content/images/icon/refresh.png);
+}
+
+gdsearch{
+    -moz-binding: url(chrome://gdocsbar/content/styles/bindings.xml#gdsearch);
+    padding:2px 5px;
+    background-color:white;
+}
+
+radiogroup[disabled]{
+    -moz-opacity:0.3;
+}
+
+
+gdlistholder .emptytext{
+    display:none;
+}
+
+gdlistholder[empty] .emptytext{
+    display:block;
+}
+
+gdlistholder[empty] .nonemptytext{
+    display:none;
+}
+

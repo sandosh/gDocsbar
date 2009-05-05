@@ -14,10 +14,13 @@
 		</xul:hbox>
 		<html:div mode="display" class="folders" anonid="folders" collapsed="true">
 		</html:div>
-		<xul:hbox align="center" style="margin-top:5px;" mode="display" flex="1">
-			<xul:gicon xbl:inherits="class=star"/><xul:label xbl:inherits="value=datetime" class="date" /><xul:label maxwidth="80" crop="end" xbl:inherits="value=author" class="date text-link" /><xul:spacer flex="1" /><xul:gicon class="options" popup="gdocumentmenu" tooltiptext="Actions"/><xul:gicon class="more" tooltiptext="More information"/>
-		</xul:hbox>
-		<xul:vbox mode="edit" style="margin-left:0px;">
+		<xul:vbox flex="1" style="padding-left:25px;">
+			<xul:label crop="end" xbl:inherits="value=author, tooltiptext=author" class="date" style="margin-left:0;"/>
+			<xul:hbox align="center" style="margin-top:5px;" mode="display" flex="1">
+				<xul:gicon xbl:inherits="class=star"/><xul:label xbl:inherits="value=datetime" class="date" /><xul:spacer flex="1" /><xul:gicon class="options" popup="gdocumentmenu" tooltiptext="Actions"/><xul:gicon class="more" tooltiptext="More information"/>
+			</xul:hbox>
+		</xul:vbox>
+		<xul:vbox mode="edit" style="margin-left:0px;" collapsed="true">
 			<xul:textbox />
 			<xul:hbox align="center">
 				<xul:button label="save" /><xul:label class="text-link" value="cancel" />
@@ -33,4 +36,139 @@
 		<xul:gicon class="folder" /><xul:label value="folder name" />
 	</content>
 </binding>
+
+
+<binding id="moreloader">
+	<content>
+		<xul:stack anonid="stack">
+			<xul:label xbl:inherits="value=label" style="padding:1px 1px 0 0; color:#FFF;" />
+			<xul:label xbl:inherits="value=label" style="color:#666;"/>
+		</xul:stack>
+		<xul:stack anonid="loading">
+			<xul:label value="loading..." style="padding:1px 1px 0 0; color:#FFF;" />
+			<xul:label value="loading..." style="color:#666;"/>
+		</xul:stack>
+	</content>
+</binding>
+
+
+<binding id="gdlistholder" extends="xul:vbox">
+	<content>
+		<xul:hbox style="background-color:#EFEFEF;font-size:7pt;" class="listdetail"><xul:hbox class="nonemptytext"><xul:label value="1"/><xul:label value="-" /><xul:label xbl:inherits="value=numshowing" /><xul:label value="of" /><xul:label xbl:inherits="value=total" /></xul:hbox><xul:label value="0 Files found" class="emptytext"></xul:label><xul:spacer flex="1" /><xul:gicon class="refresh" onclick="gbar.refreshDocumentFeed();" /></xul:hbox>
+		<xul:vbox flex="1" style="overflow:auto;">
+			<xul:vbox anonid="childrenholder">
+				<children />
+			</xul:vbox>
+			<xul:moreloader xbl:inherits="step, startindex, total, class" anonid="moreloader" onclick="gbar.getMoreDocuments();"/>
+		</xul:vbox>
+		
+	</content>
+	<implementation>
+		<method name="clearContents">
+			<body>
+				<![CDATA[
+					childrenholder = document.getAnonymousElementByAttribute(this, "anonid", "childrenholder");
+					while(this.childNodes.length > 0){
+						this.removeChild(this.firstChild);
+					}
+					this.moreloader.setAttribute('collapsed', false);
+					this.moreloader.setAttribute("label", "");
+				]]>
+			</body>
+		</method>
+		<constructor>
+			<![CDATA[
+				this.moreloader = document.getAnonymousElementByAttribute(this, "anonid", "moreloader");
+			]]>
+		</constructor>
+		<property name="startindex">
+			<setter>
+				<![CDATA[
+					
+					this.si = parseInt(val);
+					
+					this.step = parseInt(this.getAttribute("step"));
+					this.total = parseInt(this.getAttribute("total"));
+					this.si = parseInt(this.getAttribute("startindex"));
+
+						debug((this.total - (this.si + this.step - 1) ) +"<="+ this.step);
+						if(isNaN(this.total)){
+							this.moreloader.setAttribute('collapsed', true);
+						}
+						else if(this.step >= this.total){
+							this.setAttribute("numshowing", this.total)	;
+							this.moreloader.setAttribute('collapsed', true);
+						}
+						else if(this.si == this.total){
+							this.setAttribute("numshowing", this.total)	;
+							this.moreloader.setAttribute('collapsed', true);
+						}
+						else if(this.total - (this.si + this.step - 1) <= 0){
+							this.setAttribute("numshowing", this.total)	;
+							this.moreloader.setAttribute('collapsed', true);
+							
+						}
+						else if(this.total - (this.si + this.step - 1) <= this.step){
+							this.moreloader.setAttribute("label", "load last "+(this.total - (this.si + this.step - 1))+".");
+							this.setAttribute("numshowing", (this.si + this.step - 1))	;
+							this.moreloader.setAttribute('collapsed', false);
+						}
+						else{
+							this.moreloader.setAttribute("label", "load "+this.step+" more...");
+							this.setAttribute("numshowing", this.si + this.step -1);
+							this.moreloader.setAttribute('collapsed', false);
+						}
+						
+					debug("setter");
+				]]>
+			</setter>
+		</property>
+	</implementation>
+</binding>
+
+<binding id="gdsearch">
+	<content>
+		<xul:vbox flex="1">
+			<xul:hbox flex="1">
+				<xul:textbox flex="1" anonid="query" emptytext="Search documents"/><xul:gicon class="search"  onclick="gbar.getFullDocList();"/>
+			</xul:hbox>
+			<xul:hbox pack="center">
+				<xul:checkbox label="Title" anonid="title"  oncommand="titleoptions(this);"/>
+				<xul:radiogroup orient="horizontal" anonid="title-exact" collapsed="true">
+				  <xul:radio label="Exact" value="true"/>
+				  <xul:radio label="Like"  value="false" selected="true"/>
+				</xul:radiogroup>
+			</xul:hbox>
+		</xul:vbox>
+	</content>
+	<implementation>
+		<method name="getQueryParams">
+			<body>
+				<![CDATA[
+					var b = {};
+					b.queryText = document.getAnonymousElementByAttribute(this, "anonid", "query").value;
+					b.title = document.getAnonymousElementByAttribute(this, "anonid", "title").hasAttribute("checked");
+					b["title-exact"] = document.getAnonymousElementByAttribute(this, "anonid", "title-exact").value;
+					return b;
+				]]>
+			</body>
+		</method>
+		<method name="titleoptions">
+			<parameter name="obj" />
+			<body>
+				<![CDATA[
+					titleexact = document.getAnonymousElementByAttribute(this, "anonid", "title-exact");
+					if(obj.hasAttribute("checked")){
+						titleexact.setAttribute('collapsed', false);
+					}
+					else{
+						titleexact.setAttribute('collapsed', true);
+					}
+				]]>
+			</body>
+		</method>
+	</implementation>
+</binding>
+
+
 </bindings>

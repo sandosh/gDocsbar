@@ -16,7 +16,7 @@ function getSignedRequestHeader(){
     if(!this._loginResponse || !this._loginResponse['auth']){
         return false;
     }
-    var out = "Authorization: GoogleLogin auth="+this._loginResponse['auth'];
+    var out = this._loginResponse['auth'];
     return out;
 }
 

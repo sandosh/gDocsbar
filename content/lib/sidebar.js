@@ -1,14 +1,247 @@
+Components.utils.import("resource://gre/modules/JSON.jsm");
+
+gbar = GDOCSBARUtils.extend({
+    init: function(){
+        (function(){
+            $ = this.$;
+            gbarc = Components.classes["@gdocsbar.com/gdocsbar;1"].getService(Components.interfaces.nsIGdocsBar);
+            nsIObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+            le_holder = this.$("le_holder");
+            page_list = this.$("gDocsList");
+            page_login = this.$("gDocsBarLogin");
+            gDocsList_list = this.$("gDocsList_list");
+            moreloader = this.$("moreloader");
+            gdlistholder = this.$("gdlistholder");
+            feedtype = this.$("feedtype");
+            showtypes = this.$("showtypes");
+            gdsearchform = this.$("gdsearchform");
+        }).bind(this)();
+        
+        
+        debug("sidebar init...");
+        var gdocsbarobserver = new Object();
+        gdocsbarobserver.observe = (function(a,b,c){
+            debug(c);
+            switch(c){
+                case "login-error":
+                $("login_btn").setAttribute('disabled', false);
+                error = a.wrappedJSObject;
+                if(error['error'])
+                    this.setLoginError(error);
+                break;
+                
+                case "login-success":
+                auth = a.wrappedJSObject.auth;
+                this.initLoggedInUser(auth);
+                break;
+            }
+        }).bind(this);
+        this.gdocsbarobserver = gdocsbarobserver;
+        nsIObserverService.addObserver(this.gdocsbarobserver, "gdocsbar", false);
+        debug(gbarc.wrappedJSObject.loggedIn);
+        if(gbarc.wrappedJSObject.loggedIn){
+            this.initLoggedInUser(gbarc.getSignedRequestHeader());
+        }
+    },
+    initLoggedInUser: function(auth){
+        page_login.setAttribute('collapsed', true);
+        page_list.setAttribute('collapsed', false);
+        gdListAPI.init(auth);
+        this.getFullDocList();
+        //this.getFolderList();
+    },
+    getQueryParams: function(){
+        var types = {};
+        types.feedtype = feedtype.value;
+        types.showtype = showtypes.value;
+        
+        a = false;
+        var b = gdsearchform.getQueryParams();        
+        //debug(b);
+        if(b.title){
+            if(b.queryText.length > 0){
+                var a = {};
+                a.title = b.queryText;
+                a['title-exact'] = b['title-exact'];
+            }
+        }else if(b.queryText.length > 0){
+            var a = {};
+            a.q = b.queryText;
+        }
+        
+        
+        var out = {}
+        out.types = types;
+        
+        out.query = a;
+        //debug(out.query);
+        return out;
+    },
+    getMoreDocuments: function(){
+        debug("getting more...");
+        this.addClass(gdlistholder, "loading");
+        gdListAPI.getMoreDocuments(this.displayPartialDocList.bind(this) , function(){ debug("error"); });
+    },
+    getFullDocList: function(){
+        debug("setting up requests...");
+        gdlistholder.clearContents();
+        this.addClass(gdlistholder, "loading");
+        q = this.getQueryParams();
+        gdListAPI.getAllDocuments(q.types, (q.query ? q.query : null), this.displayDocList.bind(this) , function(code, data){ debug(code +", "+ data); });
+    },
+    refreshDocumentFeed: function(){
+        gdlistholder.clearContents();
+        gdListAPI.refreshFeed(this.displayDocList.bind(this) , function(code, data){ debug(code +", "+ data); });
+    },
+    displayRefreshedFeed: function(){
+        
+    },
+    parsePartialDocFeed: function(data){
+        try{
+            result = JSON.fromString(data);
+            var documentFeed = new gdFeed(result);
+            this.displayPartialDocList(documentFeed);
+        }
+        catch(e){
+            debug("Exception: "+e);
+        }
+    },
+    parseDocFeed: function(data){
+        try{
+            result = JSON.fromString(data);
+            var documentFeed = new gdFeed(result);
+            this.displayDocList(documentFeed);
+        }
+        catch(e){
+            debug("Exception: "+e);
+        }
+    },
+    displayPartialDocList: function(gdFeed){
+        this.removeClass(gdlistholder, "loading");
+        if(gdFeed.entries.length < 1){
+            gdlistholder.setAttribute("empty", true);
+            return false;
+        }
+        gdlistholder.removeAttribute("empty");
+        debug(gdFeed.total);
+        entries = gdFeed.entries;
+        
+        
+        for(var i=0; i<entries.length; i++){
+            var entry = this.makegdocument(entries[i]);
+            //gDocsList_list.insertBefore(entry, moreloader);
+            gdlistholder.appendChild(entry);
+        }
+        gdlistholder.removeAttribute("empty");
+        gdlistholder.setAttribute('total', gdFeed.total);
+        gdlistholder.setAttribute('startindex', gdFeed.startIndex);
+        gdlistholder.startindex = gdFeed.startIndex;
+        
+    },
+    displayDocList: function(gdFeed){
+        this.removeClass(gdlistholder, "loading");
+        if(gdFeed.entries.length < 1){
+            gdlistholder.setAttribute("empty", true);
+            return false;
+        }
+        gdlistholder.removeAttribute("empty");
+        debug(gdFeed.total);
+        entries = gdFeed.entries;
+        debug("hello");
+        
+        for(var i=0; i<entries.length; i++){
+            var entry = this.makegdocument(entries[i]);
+            //gDocsList_list.insertBefore(entry, moreloader);
+            gdlistholder.appendChild(entry);
+        }
+        
+        debug(gdFeed.etag);
+        gdlistholder.setAttribute('etag', gdFeed.etag);
+        gdlistholder.removeAttribute("empty");
+        gdlistholder.setAttribute('total', gdFeed.total);
+        gdlistholder.setAttribute('startindex', gdFeed.startIndex);
+        gdlistholder.startindex = gdFeed.startIndex;
+        
+    },
+    makegdocument: function(e){
+        d = document.createElement("gdocument");
+        d.setAttribute("context", "gdocumentmenu");
+        d.setAttribute("class", e._type);
+        d.setAttribute("name", e.title);
+        d.setAttribute("star", e.starred ? "star" : "nostar");
+        var monthname=new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+        datestring = this.zeroPadding(e.updated.getMonth()+1) + "/" + this.zeroPadding(e.updated.getDate());
+        d.setAttribute("datetime", datestring);
+        d.setAttribute("author", e.authors[0].name);
+        return d;
+    },
+    getFolderList: function(){
+        
+        req = gbarc.setupRequest("http://docs.google.com/feeds/documents/private/full/-/folder?showfolders=true&alt=json", true);
+        req = req.wrappedJSObject;
+        //debug(req);
+        req.onreadystatechange = (function (aEvt) {
+    	    if (req.readyState == 4) {
+    	        
+    		     if(req.status == 200){
+    		         debug(req.responseText);
+         	         debug(req.status);
+    	         }else{
+    	             
+    	         }
+
+             }
+        }).bind(this);
+        req.send(null);
+    },
+    destruct: function(){
+      nsIObserverService.removeObserver(this.gdocsbarobserver, "gdocsbar");
+    },
+    login: function(){
+        for(var i=0; i<le_holder.childNodes.length; i++){
+            le_holder.childNodes[i].setAttribute('collapsed', true);
+        }
+        debug($("email").value, $("password").value);
+        gbarc.login($("email").value, $("password").value, $("captcha_textbox").value);
+        $("login_btn").setAttribute('disabled', true);
+    },
+    cancelLogin: function(){
+        for(var i=0; i<le_holder.childNodes.length; i++){
+            le_holder.childNodes[i].setAttribute('collapsed', true);
+        }
+        $("email").value = "";
+        $("password").value = "";
+    },
+    setLoginError: function(error){
+        error_id = "le_"+error['error'];
+        $(error_id).setAttribute('collapsed', false);
+        $("captcha_image").setAttribute('src',"http://www.google.com/accounts/" + error['captchaurl']);
+    },
+    toggleSearchBox: function(){
+        if(gdsearchform.hasAttribute('collapsed')){
+            gdsearchform.removeAttribute('collapsed');
+        }
+        else{
+            gdsearchform.setAttribute('collapsed', true );
+        }
+    }
+});
+
+
+/*Components.utils.import("resource://gre/modules/JSON.jsm");
+
 GDOCSBARUtils.ns(function(){ with(GDOCSBARUtils){
     const gbarc = CCSV('@gdocsbar.com/gdocsbar;1', 'nsIGdocsBar');
     const nsIObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
     const le_holder = $("le_holder");
     const page_list = $("gDocsList");
     const page_login = $("gDocsBarLogin");
+    const gDocsList_list = $("gDocsList_list");
     
     top.gbar = {
         init: function(){
-            gbarc.reload();
-            gbarc.init();
+            //gbarc.reload();
+            //gbarc.init();
             debug("sidebar init...", true);
             var gdocsbarobserver = new Object();
             gdocsbarobserver.observe = (function(a,b,c){
@@ -22,37 +255,62 @@ GDOCSBARUtils.ns(function(){ with(GDOCSBARUtils){
                     break;
                     
                     case "login-success":
-                    this.initLoggedInUser();
+                    auth = a.wrappedJSObject.auth;
+                    this.initLoggedInUser(auth);
                     break;
                 }
             }).bind(this);
             this.gdocsbarobserver = gdocsbarobserver;
             nsIObserverService.addObserver(this.gdocsbarobserver, "gdocsbar", false);
+            debug(gbarc.wrappedJSObject.loggedIn);
+            if(gbarc.wrappedJSObject.loggedIn){
+                this.initLoggedInUser(gbarc.getSignedRequestHeader());
+            }
         },
-        initLoggedInUser: function(){
+        initLoggedInUser: function(auth){
             page_login.setAttribute('collapsed', true);
             page_list.setAttribute('collapsed', false);
-            //this.getFullDocList();
-            this.getFolderList();
+            gdListAPI.init(auth);
+            this.getFullDocList();
+            //this.getFolderList();
         },
         getFullDocList: function(){
             debug("setting up requests...");
-            req = gbarc.setupRequest("http://docs.google.com/feeds/documents/private/full", true);
-            req = req.wrappedJSObject;
-            //debug(req);
-            req.onreadystatechange = (function (aEvt) {
-        	    if (req.readyState == 4) {
-        	        
-        		     if(req.status == 200){
-        		         //debug(req.responseText);
-             	         debug(req.status);
-        	         }else{
-        	             
-        	         }
-
-                 }
-            }).bind(this);
-            req.send(null);
+            gdListAPI.getAllDocuments(null, this.parseDocFeed.bind(this) , function(){ debug("error"); });
+        },
+        parseDocFeed: function(data){
+            try{
+                result = JSON.fromString(data);
+                var documentFeed = new gdFeed(result);
+                this.displayDocList(documentFeed);
+            }
+            catch(e){
+                debug("Exception: "+e);
+            }
+        },
+        displayDocList: function(gdFeed){
+            if(gdFeed.entries.length < 1){
+                return false;
+            }
+            
+            entries = gdFeed.entries;
+            
+            for(var i=0; i<entries.length; i++){
+                var entry = this.makegdocument(entries[i]);
+                gDocsList_list.appendChild(entry);
+            }
+        },
+        makegdocument: function(e){
+            d = document.createElement("gdocument");
+            d.setAttribute("context", "gdocumentmenu");
+            d.setAttribute("class", e._type);
+            d.setAttribute("name", e.title);
+            d.setAttribute("star", e.starred ? "star" : "nostar");
+            var monthname=new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+            datestring = monthname[e.updated.getMonth()] + " " + e.updated.getDate();
+            d.setAttribute("datetime", datestring);
+            d.setAttribute("author", e.authors[0].name);
+            return d;
         },
         getFolderList: function(){
             
@@ -97,4 +355,4 @@ GDOCSBARUtils.ns(function(){ with(GDOCSBARUtils){
             $("captcha_image").setAttribute('src',"http://www.google.com/accounts/" + error['captchaurl']);
         }
     }
-} });
+} });*/

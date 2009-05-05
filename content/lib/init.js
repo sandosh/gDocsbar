@@ -1,5 +1,5 @@
 function all_init(){
-    GDOCSBARUtils.initialize();
+  //  GDOCSBARUtils.initialize();
 	gbar.init();
 }
 

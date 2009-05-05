@@ -11,9 +11,10 @@
 	id="sbGdocsbar" width="250">
 	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/misc.js" />
 	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/utils.js" />
+	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/gdnet.js" />
+	
 	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/sidebar.js" />
 	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/init.js" />
-	
 	<script type="application/x-javascript">
 	  <![CDATA[
 		  function sayHello() {
@@ -58,8 +59,8 @@
 	
 	<menupopup id="gdocumentlistmenu" position="after_end">
 		<menuitem label="All"><gicon class="all"/><label value="All" /></menuitem>
-		<menuitem label="Owned by me"><gicon class="edit"/><label value="Owned by me" /></menuitem>
-		<menuitem label="Opened by me"><gicon class="edit"/><label value="Opened by me" /></menuitem>
+		<menuitem label="Owned"><gicon class="edit"/><label value="Owned" /></menuitem>
+		<menuitem label="Opened"><gicon class="edit"/><label value="Opened" /></menuitem>
 		<menuitem label="Starred"><gicon class="star"/><label value="Starred" /></menuitem>
 		<menuitem label="Hidden"><gicon class="hidden"/><label value="Hidden" /></menuitem>
 		<menuitem label="Trashed"><gicon class="delete"/><label value="Trashed" /></menuitem>
@@ -67,35 +68,33 @@
 	
 <page id="gDocsList" title="List" flex="1">
 	<hbox class="title">
-		<hbox popup="gdocumentlistmenu"><gicon class="all"/><label value="All" /><gicon class="down" /></hbox>
+		<menulist id="feedtype">
+		  <menupopup id="menupopup" oncommand="gbar.getFullDocList();">
+			<menuitem label="All" value=""><gicon class="all"/><label value="All" /></menuitem>
+			<menuitem label="Owned" value="mine"><gicon class="edit"/><label value="Owned" /></menuitem>
+			<menuitem label="Opened" value="viewed"><gicon class="edit"/><label value="Opened" /></menuitem>
+			<menuitem label="Starred" value="starred"><gicon class="star"/><label value="Starred" /></menuitem>
+			<menuitem label="Private" value="private"><gicon class="hidden"/><label value="Private" /></menuitem>
+			<menuitem label="Hidden" value="hidden"><gicon class="hidden"/><label value="Hidden" /></menuitem>
+			<menuitem label="Trashed" value="trashed"><gicon class="delete"/><label value="Trashed" /></menuitem>
+		  </menupopup>
+		</menulist>
+		<spacer flex="1" />
+		
+		<menulist id="showtypes" style="-moz-appearance:none; background: #f7fdff url(chrome://gdocsbar/content/images/icon/pulldown_icon.png) no-repeat 25px; padding:2px 0 2px 4px; -moz-border-radius:3px;">
+			<menupopup id="menupopup" oncommand="gbar.getFullDocList();">
+				<menuitem image="chrome://gdocsbar/content/images/icon/icon_4_all.png" value=""></menuitem>
+				<menuitem image="chrome://gdocsbar/content/images/icon/icon_4_doc.gif" value="document"></menuitem>
+				<menuitem image="chrome://gdocsbar/content/images/icon/icon_4_pres.gif" value="presentation"></menuitem>
+				<menuitem image="chrome://gdocsbar/content/images/icon/icon_4_spread.gif" value="spreadsheet"></menuitem>
+				<menuitem image="chrome://gdocsbar/content/images/icon/icon_4_pdf.gif" value="pdf"></menuitem>
+			</menupopup>
+		</menulist>
+		<gicon class="search" onclick="gbar.toggleSearchBox();"/>
 	</hbox>
-	<vbox id="gDocsList_list" flex="2">
-			<gdocument context="gdocumentmenu" class="doc display" name="sandosh vasudevan.doc" star="star" datetime="May 21" author="brandon.powell"/>
-			<gdocument context="gdocumentmenu" class="pres display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="pdf display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="spread display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="doc display" name="sandosh vasudevan.doc" star="star" datetime="May 21" author="brandon.powell"/>
-			<gdocument context="gdocumentmenu" class="pres display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="pdf display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="spread display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="doc display" name="sandosh vasudevan.doc" star="star" datetime="May 21" author="brandon.powell"/>
-			<gdocument context="gdocumentmenu" class="pres display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="pdf display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="spread display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="doc display" name="sandosh vasudevan.doc" star="star" datetime="May 21" author="brandon.powell"/>
-			<gdocument context="gdocumentmenu" class="pres display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="pdf display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="spread display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="doc display" name="sandosh vasudevan.doc" star="star" datetime="May 21" author="brandon.powell"/>
-			<gdocument context="gdocumentmenu" class="pres display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="pdf display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="spread display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="doc display" name="sandosh vasudevan.doc" star="star" datetime="May 21" author="brandon.powell"/>
-			<gdocument context="gdocumentmenu" class="pres display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="pdf display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-			<gdocument context="gdocumentmenu" class="spread display" name="sandosh vasudevan.doc" star="nostar" datetime="May 21" author="brandon.powell" />
-
-	</vbox>
+	<gdsearch id="gdsearchform" collapsed="true"/>
+	<gdlistholder id="gdlistholder" step="20" flex="2"/>
+	
 	<splitter collapse="before" resizeafter="farthest" collapsed="true">
 	  </splitter>
 	<hbox class="title">
@@ -108,7 +107,7 @@
 	</vbox>
 </page>
 <page id="gDocsBarLogin" title="hello"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" style="background-color:white;" collapsed="true">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" style="background-color:white;">
 		
 <vbox flex="1">
 	<vbox id="le_holder">
@@ -127,6 +126,7 @@
 	</vbox>
 	<textbox emptytext="Email" id="email"/>
 	<textbox emptytext="Password" id="password" type="password"/>
+	<checkbox label="Remember me" />
 	<hbox align="center">
 		<button label="Login" oncommand="gbar.login();" id="login_btn"/><label value="cancel" class="text-link" onclick="gbar.cancelLogin()" collapsed="true"/>
 	</hbox>
