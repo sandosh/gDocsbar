@@ -60,7 +60,9 @@ gdocument.edit > *[mode=edit]{
     display:-moz-box;
 }
 
-
+gdocument.deleted {
+  background: #FF5555 no-repeat center center !important;
+}
 
 gdocument description.name{
     margin-left:25px;

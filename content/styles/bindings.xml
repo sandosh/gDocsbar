@@ -82,11 +82,28 @@
 				]]>
 			</body>
 		</method>
+		<method name="deleted">
+			<parameter name="data" />
+			<body>
+				<![CDATA[
+						gbar.removeClass(this, "loading");
+						gbar.addClass(this, "deleted");
+				]]>
+			</body>
+		</method>
 		<method name="star">
 			<body>
 				<![CDATA[
 					gbar.addClass(this, "loading");
           gdListAPI.star(this);
+				]]>
+			</body>
+		</method>
+		<method name="delete">
+			<body>
+				<![CDATA[
+					gbar.addClass(this, "loading");
+          gdListAPI.delete(this);
 				]]>
 			</body>
 		</method>

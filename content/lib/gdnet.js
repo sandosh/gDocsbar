@@ -200,7 +200,7 @@ gdListAPI.extend({
         //debug(data);
         try{
             
-            
+            if(data) {  
             result = JSON.fromString(data);
             //var documentFeed = new gdFeed(result);
             
@@ -210,6 +210,10 @@ gdListAPI.extend({
             
             
             return result;
+            } else {
+              // happens on document deletions
+              return data;
+            }
         }
         catch(e){
             debug("Exception: "+e);
@@ -272,9 +276,17 @@ gdListAPI.extend({
         editLink = gdEntryEl.getAttribute('edit');
         etag = gdEntryEl.getAttribute('etag');
         outStr = gAtomFeed.star(gdEntryEl.getAttribute('name'));
-        mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true,gdEntryEl.nameSaved.bind(gdEntryEl), gdEntryEl.nameSavedError.bind(gdEntryEl)  , {"Content-Type": "application/atom+xml", "If-Match": etag});
+        mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true, gdEntryEl.nameSaved.bind(gdEntryEl), gdEntryEl.nameSavedError.bind(gdEntryEl)  , {"Content-Type": "application/atom+xml", "If-Match": etag});
         mr.send(outStr);
         debug(outStr);
+    },
+    delete: function(gdEntryEl) {
+        debug("in delete");
+        editLink = gdEntryEl.getAttribute('edit');
+        etag = gdEntryEl.getAttribute('etag');
+        // TODO: error functions to be defined. Call refreshdocumentfeed in success ??
+        mr = this.setupRequest(editLink, {alt: "json"}, "DELETE", true,gdEntryEl.deleted.bind(gdEntryEl),function(){}, {"Content-Type": "application/atom+xml", "If-Match": etag});
+        mr.send('');
     }
 
 });

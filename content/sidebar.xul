@@ -27,7 +27,7 @@
 	  <menuitem label="Share"><gicon class="share" /><label value="Share" /></menuitem>
 	  <menuitem label="Move to"><gicon class="move" /><label value="Move to" /></menuitem>
 	  <menuitem label="Hide"><gicon class="hide" /><label value="Hide" /></menuitem>
-	  <menuitem label="Delete"><gicon class="delete" /><label value="Delete" /></menuitem>
+	  <menuitem label="Delete" oncommand="document.popupNode.delete();"><gicon class="delete" /><label value="Delete" /></menuitem>
 	  <menuitem label="Rename" oncommand="document.popupNode.rename();"><gicon /><label value="Rename" /></menuitem>
 	<menuitem label="Change Owner"><gicon /><label value="Change Owner" /></menuitem>
 	<menuitem label="Manage sharing"><gicon /><label value="Manage sharing" /></menuitem>
