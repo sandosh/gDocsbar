@@ -197,9 +197,8 @@ gdListAPI.extend({
         return r;
     },
     parseResponse: function(data){
-        //debug(data);
         try{
-            
+            debug(data);     
             if(data) {  
             result = JSON.fromString(data);
             //var documentFeed = new gdFeed(result);

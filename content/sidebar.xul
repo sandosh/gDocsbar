@@ -32,7 +32,7 @@
 	<menuitem label="Change Owner"><gicon /><label value="Change Owner" /></menuitem>
 	<menuitem label="Manage sharing"><gicon /><label value="Manage sharing" /></menuitem>
 	<menuitem label="View the published version"><gicon /><label value="View the published version" /></menuitem>
-	<menuitem label="Preview"><gicon /><label value="Preview" /></menuitem>
+	<menuitem label="Preview" oncommand="document.popupNode.preview()"><gicon /><label value="Preview" /></menuitem>
 	<menuseparator/>
 	<menu id="saveas-menu" label="Save as">
 	      

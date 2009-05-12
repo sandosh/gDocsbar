@@ -178,6 +178,7 @@ gbar = GDOCSBARUtils.extend({
         d.setAttribute("author", e.authors[0].name);
         d.setAttribute("edit", e.editLink);
         d.setAttribute("etag", e.etag);
+        d.setAttribute("resourceId",e.resourceId);
         this.addClass(d, e._type);
         //this.addClass(d, "edit");
         return d;
