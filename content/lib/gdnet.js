@@ -30,6 +30,7 @@ gdEntry = Base.extend({
     
     constructor: function(rawentryobject){
         r = rawentryobject;
+        this.etag = r.gd$etag;
         this.folders = new Array();
         for(var i=0; i< r.category.length; i++){
             if(r.category[i].scheme == "http://schemas.google.com/g/2005/labels"){
@@ -56,6 +57,11 @@ gdEntry = Base.extend({
         if(r['r.gd$feedLink']){
             for(var i=0; i< r.gd$feedLink.length; i++){
                 this.feedLink.push(r.gd$feedLink[i].href);
+            }
+        }
+        for(var i=0; i<r.link.length; i++){
+            if(r.link[i].rel == "edit"){
+                this.editLink = r.link[i].href;
             }
         }
         
@@ -109,13 +115,17 @@ gdNet = Base.extend({
     onreadystatechange: function(event){
         req = event.target;
         if(req.readyState == 4){
-            debug(req.status);
+            
             if(req.status == 200){
-                
+                debug(req.status);
                 this.onSuccess(req.responseText);
             }
-            else
+            else{
+                debug(req.status);
+                debug(req.responseText);
                 this.onError(req.status, req.responseText);
+                
+            }
         }
     },
     send: function(data){
@@ -189,12 +199,21 @@ gdListAPI.extend({
     parseResponse: function(data){
         //debug(data);
         try{
+            
+            
             result = JSON.fromString(data);
-            var documentFeed = new gdFeed(result);
-            return documentFeed;
+            //var documentFeed = new gdFeed(result);
+            
+            //var serializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"].createInstance(Components.interfaces.nsIDOMSerializer);
+            
+           
+            
+            
+            return result;
         }
         catch(e){
             debug("Exception: "+e);
+            debug(data);
             return false;
         }
     },
@@ -241,3 +260,38 @@ gdListAPI.extend({
         mr.send(null);
     }
 });
+
+
+var gAtomFeed = new Base;
+gAtomFeed.addXMLHeader = function(txt){
+    return "<?xml version='1.0' encoding='UTF-8'?>\n" + txt;
+}
+gAtomFeed.updateTitle = function(title, etag){
+    default xml namespace="http://www.w3.org/2005/Atom";
+
+    var phoneBook = <atom:entry xmlns:atom="http://www.w3.org/2005/Atom" gd:etag={etag} xmlns:gd="http://schemas.google.com/docs/2007">
+      <atom:category scheme="http://schemas.google.com/g/2005#kind"
+          term="http://schemas.google.com/docs/2007#document" label="document"/>
+      <atom:title>{title}</atom:title>
+    </atom:entry>;
+    
+    var phoneBookStr = phoneBook.toXMLString();
+    return this.addXMLHeader(phoneBookStr);
+}
+gAtomFeed.star = function(){
+    default xml namespace="http://www.w3.org/2005/Atom";
+
+    var myxml = <atom:entry xmlns:atom="http://www.w3.org/2005/Atom" gd:etag={etag} xmlns:gd="http://schemas.google.com/docs/2007">
+      <atom:category scheme="http://schemas.google.com/g/2005#kind"
+          term="http://schemas.google.com/docs/2007#document" label="document"/>
+      <atom:category scheme="http://schemas.google.com/g/2005/labels"
+          term="http://schemas.google.com/g/2005/labels#starred" label="starred"/>
+    </atom:entry>;
+    
+    var myxmlStr = myxml.toXMLString();
+    return this.addXMLHeader(myxmlStr);
+}
+
+
+
+//gAtomFeed.updateTitle("Sandosh", "BxAaTxRZAyp7ImBq");

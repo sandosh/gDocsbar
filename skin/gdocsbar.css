@@ -37,9 +37,7 @@ gdocument > div.folders{
 gdocument > div.folders > label{
 	background-color: #cfedfe; font-size: 7pt; padding:1px 5px; -moz-border-radius:3px; margin-right: 5px; margin-left: 0px;
 }
-gdocument.display > *[mode=edit]{
-    display:none;
-}
+
 gdocument.edit {
     background-color: #cfedfe;
     border-top: 3px solid #CCC;
@@ -52,10 +50,17 @@ gdocument.loading > *[mode=display], gdocument.loading > *[mode=edit], gdocument
 gdocument.loading{
     background:white url(chrome://gdocsbar/content/images/loading-777.gif) no-repeat center center !important;
 }
-
+gdocument > *[mode=edit]{
+    display:none;
+}
 gdocument.edit > *[mode=display]{
     display:none;
 }
+gdocument.edit > *[mode=edit]{
+    display:-moz-box;
+}
+
+
 
 gdocument description.name{
     margin-left:25px;

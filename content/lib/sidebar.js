@@ -116,63 +116,70 @@ gbar = GDOCSBARUtils.extend({
             debug("Exception: "+e);
         }
     },
-    displayPartialDocList: function(gdFeed){
+    displayPartialDocList: function(result){
+        _gdFeed = new gdFeed(result);
         this.removeClass(gdlistholder, "loading");
-        if(gdFeed.entries.length < 1){
+        if(_gdFeed.entries.length < 1){
             gdlistholder.setAttribute("empty", true);
             return false;
         }
         gdlistholder.removeAttribute("empty");
-        debug(gdFeed.total);
-        entries = gdFeed.entries;
-        
-        
+        debug(_gdFeed.total);
+        entries = _gdFeed.entries;
+
+
         for(var i=0; i<entries.length; i++){
             var entry = this.makegdocument(entries[i]);
             //gDocsList_list.insertBefore(entry, moreloader);
             gdlistholder.appendChild(entry);
         }
         gdlistholder.removeAttribute("empty");
-        gdlistholder.setAttribute('total', gdFeed.total);
-        gdlistholder.setAttribute('startindex', gdFeed.startIndex);
-        gdlistholder.startindex = gdFeed.startIndex;
-        
+        gdlistholder.setAttribute('total', _gdFeed.total);
+        gdlistholder.setAttribute('startindex', _gdFeed.startIndex);
+        gdlistholder.startindex = _gdFeed.startIndex;
+
     },
-    displayDocList: function(gdFeed){
+    displayDocList: function(result){
+        _gdFeed = new gdFeed(result);
+
         this.removeClass(gdlistholder, "loading");
-        if(gdFeed.entries.length < 1){
+        if(_gdFeed.entries.length < 1){
             gdlistholder.setAttribute("empty", true);
             return false;
         }
         gdlistholder.removeAttribute("empty");
-        debug(gdFeed.total);
-        entries = gdFeed.entries;
+        debug(_gdFeed.total);
+        entries = _gdFeed.entries;
         debug("hello");
-        
+
         for(var i=0; i<entries.length; i++){
             var entry = this.makegdocument(entries[i]);
             //gDocsList_list.insertBefore(entry, moreloader);
             gdlistholder.appendChild(entry);
         }
-        
-        debug(gdFeed.etag);
-        gdlistholder.setAttribute('etag', gdFeed.etag);
+
+        debug(_gdFeed.etag);
+        gdlistholder.setAttribute('etag', _gdFeed.etag);
         gdlistholder.removeAttribute("empty");
-        gdlistholder.setAttribute('total', gdFeed.total);
-        gdlistholder.setAttribute('startindex', gdFeed.startIndex);
-        gdlistholder.startindex = gdFeed.startIndex;
-        
+        gdlistholder.setAttribute('total', _gdFeed.total);
+        gdlistholder.setAttribute('startindex', _gdFeed.startIndex);
+        gdlistholder.startindex = _gdFeed.startIndex;
+
     },
     makegdocument: function(e){
         d = document.createElement("gdocument");
         d.setAttribute("context", "gdocumentmenu");
-        d.setAttribute("class", e._type);
+//        d.setAttribute("mode", "edit");
         d.setAttribute("name", e.title);
         d.setAttribute("star", e.starred ? "star" : "nostar");
         var monthname=new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
         datestring = this.zeroPadding(e.updated.getMonth()+1) + "/" + this.zeroPadding(e.updated.getDate());
         d.setAttribute("datetime", datestring);
         d.setAttribute("author", e.authors[0].name);
+        d.setAttribute("edit", e.editLink);
+        d.setAttribute("etag", e.etag);
+        this.addClass(d, e._type);
+        //this.addClass(d, "edit");
         return d;
     },
     getFolderList: function(){
@@ -224,6 +231,12 @@ gbar = GDOCSBARUtils.extend({
         else{
             gdsearchform.setAttribute('collapsed', true );
         }
+    },
+    renameDocument: function(el, newName){
+        editLink = el.getAttribute('edit');
+        etag = el.getAttribute('etag');
+        outStr = gAtomFeed.updateTitle(newName);
+        
     }
 });
 

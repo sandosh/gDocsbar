@@ -14,19 +14,96 @@
 		</xul:hbox>
 		<html:div mode="display" class="folders" anonid="folders" collapsed="true">
 		</html:div>
-		<xul:vbox flex="1" style="padding-left:25px;">
+		<xul:vbox flex="1" style="padding-left:25px;" mode="display">
 			<xul:label crop="end" xbl:inherits="value=author, tooltiptext=author" class="date" style="margin-left:0;"/>
 			<xul:hbox align="center" style="margin-top:5px;" mode="display" flex="1">
-				<xul:gicon xbl:inherits="class=star"/><xul:label xbl:inherits="value=datetime" class="date" /><xul:spacer flex="1" /><xul:gicon class="options" popup="gdocumentmenu" tooltiptext="Actions"/><xul:gicon class="more" tooltiptext="More information"/>
+				<xul:gicon xbl:inherits="class=star" onclick="star();"/><xul:label xbl:inherits="value=datetime" class="date" /><xul:spacer flex="1" /><xul:gicon class="options" popup="gdocumentmenu" tooltiptext="Actions"/><xul:gicon class="more" tooltiptext="More information"/>
 			</xul:hbox>
 		</xul:vbox>
-		<xul:vbox mode="edit" style="margin-left:0px;" collapsed="true">
-			<xul:textbox />
+		<xul:vbox mode="edit" style="margin-left:0px;">
+			<xul:textbox xbl:inherits="value=name" anonid="name_textbox"/>
 			<xul:hbox align="center">
-				<xul:button label="save" /><xul:label class="text-link" value="cancel" />
+				<xul:button label="save" oncommand="saveName();"/><xul:label class="text-link" value="cancel" onclick="cancelRename();" />
 			</xul:hbox>
 		</xul:vbox>
 	</content>
+	<implementation>
+		<constructor>
+			<![CDATA[
+				
+			]]>
+		</constructor>
+		<method name="rename">
+			<body>
+				<![CDATA[
+					gbar.addClass(this, "edit");
+					name = document.getAnonymousElementByAttribute(this, "anonid", "name_textbox");
+					name.select();
+					name.focus();
+				]]>
+			</body>
+		</method>
+		<method name="cancelRename">
+			<body>
+				<![CDATA[
+					gbar.removeClass(this, "edit");
+				]]>
+			</body>
+		</method>
+		<method name="saveName">
+			<body>
+				<![CDATA[
+					gbar.addClass(this, "loading");
+					name = document.getAnonymousElementByAttribute(this, "anonid", "name_textbox");
+					
+					editLink = this.getAttribute('edit');
+			        etag = this.getAttribute('etag');
+			        outStr = gAtomFeed.updateTitle(name.value, etag);
+					
+					debug(outStr);
+					mr = gdListAPI.setupRequest(editLink, {alt: "json"}, "PUT", true, this.nameSaved.bind(this), this.nameSavedError.bind(this), {"Content-Type": "application/atom+xml", "If-Match": etag});
+			        mr.send(outStr);
+					
+				]]>
+			</body>
+		</method>
+		<method name="nameSavedError">
+			<body>
+				<![CDATA[
+				gbar.removeClass(this, "loading");
+				]]>
+			</body>
+		</method>
+		<method name="nameSaved">
+			<parameter name="data" />
+			<body>
+				<![CDATA[
+					if(data){
+						gbar.removeClass(this, "edit");
+						gbar.removeClass(this, "loading");
+						debug(data);
+						entry = new gdEntry(data.entry);
+						newel = gbar.makegdocument(entry);
+						this.parentNode.replaceChild(newel, this);
+					}
+				]]>
+			</body>
+		</method>
+		<method name="star">
+			<body>
+				<![CDATA[
+					editLink = this.getAttribute('edit');
+			        etag = this.getAttribute('etag');
+			        outStr = gAtomFeed.star();
+					
+					gbar.addClass(this, "loading");
+					debug(outStr);
+					mr = gdListAPI.setupRequest(editLink, {alt: "json"}, "PUT", true, this.nameSaved.bind(this), this.nameSavedError.bind(this), {"Content-Type": "application/atom+xml", "If-Match": etag});
+			        mr.send(outStr);
+				]]>
+			</body>
+		</method>
+	</implementation>
 </binding>	
 
 <binding id="gicon" extends="xul:label"/>
@@ -130,7 +207,7 @@
 	<content>
 		<xul:vbox flex="1">
 			<xul:hbox flex="1">
-				<xul:textbox flex="1" anonid="query" emptytext="Search documents"/><xul:gicon class="search"  onclick="gbar.getFullDocList();"/>
+				<xul:textbox flex="1" anonid="query" emptytext="Search documents" type="search" oncommand="gbar.getFullDocList();" searchbutton="true"/><xul:gicon class="search"  onclick="gbar.getFullDocList();"/>
 			</xul:hbox>
 			<xul:hbox pack="center">
 				<xul:checkbox label="Title" anonid="title"  oncommand="titleoptions(this);"/>
