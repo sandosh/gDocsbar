@@ -151,26 +151,16 @@ Function.prototype.bind = function(obj) {
 
 
 var debug = function() {
-  dump('TiseMe: ');
   if (debug.caller && debug.caller.name)
-    dump(debug.caller.name + ': ')
   for( var i=0; i < arguments.length; i++ ) {
-    if( i ) dump( ', ' );
     switch( typeof arguments[i] ) {
       case 'xml':
-        dump( arguments[i].toXMLString() );
-        break;s
-      case 'object':
-        dump( '[obj]\n' );
-        for( prop in arguments[i] )
-          dump( ' ' + prop + ': ' + arguments[i][prop] + '\n' );
-        dump( '[/obj]\n' );
+        console.log(debug.caller.name + ': ' + arguments[i].toXMLString() )
         break;
       default:
-        dump( arguments[i] );
+        console.log(debug.caller.name + ': ' + arguments[i] )
     }
   }
-  dump('\n');
 }
 
 function executeSoon(aFunc)
