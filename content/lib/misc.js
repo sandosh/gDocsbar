@@ -151,14 +151,14 @@ Function.prototype.bind = function(obj) {
 
 
 var debug = function() {
-  if (debug.caller && debug.caller.name)
+  var caller_name = debug.caller && debug.caller.name ? debug.caller.name : ''
   for( var i=0; i < arguments.length; i++ ) {
     switch( typeof arguments[i] ) {
       case 'xml':
-        console.log(debug.caller.name + ': ' + arguments[i].toXMLString() )
+        console.log(caller_name + ': ' + arguments[i].toXMLString() )
         break;
       default:
-        console.log(debug.caller.name + ': ' + arguments[i] )
+        console.log(caller_name + ': ' + arguments[i] )
     }
   }
 }
