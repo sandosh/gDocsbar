@@ -53,16 +53,9 @@
 		<method name="saveName">
 			<body>
 				<![CDATA[
-					gbar.addClass(this, "loading");
-					name = document.getAnonymousElementByAttribute(this, "anonid", "name_textbox");
-					
-					editLink = this.getAttribute('edit');
-			        etag = this.getAttribute('etag');
-			        outStr = gAtomFeed.updateTitle(name.value, etag);
-					
-					debug(outStr);
-					mr = gdListAPI.setupRequest(editLink, {alt: "json"}, "PUT", true, this.nameSaved.bind(this), this.nameSavedError.bind(this), {"Content-Type": "application/atom+xml", "If-Match": etag});
-			        mr.send(outStr);
+          gbar.addClass(this, "loading");
+          // rename(this,newName)
+          gdListAPI.rename(this,document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").value);
 					
 				]]>
 			</body>
@@ -92,14 +85,8 @@
 		<method name="star">
 			<body>
 				<![CDATA[
-					editLink = this.getAttribute('edit');
-			        etag = this.getAttribute('etag');
-			        outStr = gAtomFeed.star();
-					
 					gbar.addClass(this, "loading");
-					debug(outStr);
-					mr = gdListAPI.setupRequest(editLink, {alt: "json"}, "PUT", true, this.nameSaved.bind(this), this.nameSavedError.bind(this), {"Content-Type": "application/atom+xml", "If-Match": etag});
-			        mr.send(outStr);
+          gdListAPI.star(this);
 				]]>
 			</body>
 		</method>

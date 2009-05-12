@@ -258,7 +258,25 @@ gdListAPI.extend({
         this.lastq['start-index'] = 1;
         mr = this.setupRequest(this.lasturl, this.lastq, "GET", null, success, error);
         mr.send(null);
+    },
+    rename: function(gdEntryEl,newName){
+        debug("in rename3");
+        editLink = gdEntryEl.getAttribute('edit');
+        etag = gdEntryEl.getAttribute('etag');
+        outStr = gAtomFeed.updateTitle(newName, etag);
+        mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true,gdEntryEl.nameSaved.bind(gdEntryEl), gdEntryEl.nameSavedError.bind(gdEntryEl) , {"Content-Type": "application/atom+xml", "If-Match": etag});
+        mr.send(outStr);
+    },
+    star: function(gdEntryEl) {
+        debug("in star 2");
+        editLink = gdEntryEl.getAttribute('edit');
+        etag = gdEntryEl.getAttribute('etag');
+        outStr = gAtomFeed.star(gdEntryEl.getAttribute('name'));
+        mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true,gdEntryEl.nameSaved.bind(gdEntryEl), gdEntryEl.nameSavedError.bind(gdEntryEl)  , {"Content-Type": "application/atom+xml", "If-Match": etag});
+        mr.send(outStr);
+        debug(outStr);
     }
+
 });
 
 
@@ -278,14 +296,15 @@ gAtomFeed.updateTitle = function(title, etag){
     var phoneBookStr = phoneBook.toXMLString();
     return this.addXMLHeader(phoneBookStr);
 }
-gAtomFeed.star = function(){
+gAtomFeed.star = function(title){
     default xml namespace="http://www.w3.org/2005/Atom";
 
-    var myxml = <atom:entry xmlns:atom="http://www.w3.org/2005/Atom" gd:etag={etag} xmlns:gd="http://schemas.google.com/docs/2007">
+    var myxml = <atom:entry xmlns:atom="http://www.w3.org/2005/Atom"  xmlns:gd="http://schemas.google.com/docs/2007">
       <atom:category scheme="http://schemas.google.com/g/2005#kind"
           term="http://schemas.google.com/docs/2007#document" label="document"/>
       <atom:category scheme="http://schemas.google.com/g/2005/labels"
           term="http://schemas.google.com/g/2005/labels#starred" label="starred"/>
+      <atom:title>{title}</atom:title>
     </atom:entry>;
     
     var myxmlStr = myxml.toXMLString();
