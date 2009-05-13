@@ -153,13 +153,26 @@ gdNet = Base.extend({
     }
 })
 
+gdBrowser = new Base;
+gdBrowser.extend({
+  _host: "http://docs.google.com",
+  init: function() {
+    this._mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIWebNavigation).QueryInterface(Components.interfaces.nsIDocShellTreeItem).rootTreeItem.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindow);
+    this._gBrowser = this._mainWindow.getBrowser();
+  },
+  preview: function(gdEntryEl) {
+    debug("in preview");
+    url = this._host + "/View?revision=_latest&docid=" + gdEntryEl.getAttribute('resourceId');
+    this._gBrowser.selectedTab = this._gBrowser.addTab(url);
+  }
+});
 
 gdListAPI = new Base;
 gdListAPI.extend({
     _host: "http://docs.google.com",
     listURL: "/feeds/documents/private/full",
-    documentExport: "/feeds/download/documents/Export",
-    presentationExport: "/feeds/download/presentations/Export",
+    documentExport: "http://docs.google.com/feeds/download/documents/Export",
+    presentationExport: "http://docs.google.com/feeds/download/presentations/Export",
     spreadsheetExport: "http://spreadsheets.google.com/feeds/download/spreadsheets/Export",
     defaultPageSize: 20,
     __options: {alt: "json", "start-index": 1, "max-results": 20},
@@ -302,6 +315,45 @@ gdListAPI.extend({
         outStr = gAtomFeed.getUpdateXML(gdEntryEl, 'hide');
         mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true, gdEntryEl.deleted.bind(gdEntryEl),function(){}, {"Content-Type": "application/atom+xml", "If-Match": etag});
         mr.send(outStr);
+    },
+    download: function(gdEntryEl,format) {
+        debug("in download");
+        resource = gdEntryEl.nameSaved.bind('resource');
+        var fmCmd = {"pdf" : 12, "xls" : 4, "csv" : 5, "ods" : 13, "tsv" : 23, "html" : 102 };
+        key = gdEntryEl.getAttribute('resourceId');
+        if(resource == "spreadsheet") {
+          var url = this.spreadsheetExport + "?key=" + key +"&fmcmd=" + fmCmd[format];
+        } else if(resource == "presentation") {
+          var url =  this.presentationExport + "?docID="+ key +"&exportFormat=" + format
+        } else {
+          var url = this.documentExport + "?docID="+ key +"&exportFormat=" + format
+        }
+        debug(url);
+        filename = gdEntryEl.getAttribute('name') + '.' + format;
+        netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+        // Open the save file dialog
+        const nsIFilePicker = Components.interfaces.nsIFilePicker;
+        var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+        fp.init(window, "Save File...", nsIFilePicker.modeSave);
+        fp.defaultString = filename;
+        var rv = fp.show();
+        if(rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace){
+          // Open the file and write to it
+          var file = fp.file;
+          if(file.exists() == false){//create as necessary
+            file.create( Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 420 );
+          }
+        }
+        var dm = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
+        var ios = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces.nsIIOService);
+        var uri = ios.newURI(url, null, null);
+        var fileURI = ios.newFileURI(file);
+        //new persitence object
+        var wbp = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(Components.interfaces.nsIWebBrowserPersist);
+        var dl = dm.addDownload(0, uri, fileURI, file.leafName, null, 0, null, wbp);
+        wbp.progressListener = dl;
+        //save file to target
+        wbp.saveURI(uri,null,null,null,"Authorization:GoogleLogin auth=" + this._auth +"\r\n",file);
     }
 
 });
