@@ -40,16 +40,23 @@
 	
    
 	<menupopup>
-	<menuitem label="HTML (zipped)"><gicon /><label value="HTML (zipped)" /></menuitem>
-	<menuitem label="OpenDocument"><gicon /><label value="OpenDocument" /></menuitem>
-	<menuitem label="Open Office"><gicon /><label value="Open Office" /></menuitem>
-	<menuitem label="Excel"><gicon /><label value="Excel" /></menuitem>
-	<menuitem label="PDF"><gicon /><label value="PDF" /></menuitem>
-	<menuitem label="PPT"><gicon /><label value="PPT" /></menuitem>
-	<menuitem label="Text"><gicon /><label value="Text" /></menuitem>
-	<menuitem label="RTF"><gicon /><label value="RTF" /></menuitem>
-	<menuitem label="Text"><gicon /><label value="Text" /></menuitem>
-	<menuitem label="Word"><gicon /><label value="Word" /></menuitem>
+	<menuitem label="HTML (zipped)" oncommand="document.popupNode.download('zip')"><gicon /><label value="HTML (zipped)" /></menuitem>
+	<menuitem label="OpenDocument" oncommand="document.popupNode.download('odt')"><gicon /><label value="OpenDocument" /></menuitem>
+	<menuitem label="RTF" oncommand="document.popupNode.download('rtf')"><gicon /><label value="RTF" /></menuitem>
+	<menuitem label="Word" oncommand="document.popupNode.download('doc')"><gicon /><label value="Word" /></menuitem>
+  
+  <menuitem label="PNG" oncommand="document.popupNode.download('png')"><gicon /><label value="PNG" /></menuitem>
+  <menuitem label="PDF" oncommand="document.popupNode.download('pdf')"><gicon /><label value="PDF" /></menuitem>
+	<menuitem label="Text" oncommand="document.popupNode.download('txt')"><gicon /><label value="Text" /></menuitem>
+  
+  <menuitem label="PPT" oncommand="document.popupNode.download('ppt')"><gicon /><label value="PPT" /></menuitem>
+	<menuitem label="SWF" oncommand="document.popupNode.download('swf')"><gicon /><label value="SWF" /></menuitem>
+  
+  <menuitem label="Excel" oncommand="document.popupNode.download('xls')"><gicon /><label value="Excel" /></menuitem>
+  <menuitem label="CSV" oncommand="document.popupNode.download('csv')"><gicon /><label value="CSV" /></menuitem>
+  <menuitem label="Open Document Spreadsheet" oncommand="document.popupNode.download('ods')"><gicon /><label value="Open Document Spreadsheet" /></menuitem>
+  <menuitem label="TSV (Tab Separated)" oncommand="document.popupNode.download('tsv')"><gicon /><label value="TSV (Tab Separated)" /></menuitem>
+  <menuitem label="HTML" oncommand="document.popupNode.download('html')"><gicon /><label value="HTML" /></menuitem>
 	</menupopup>
 	</menu>
 	<menuseparator/>
