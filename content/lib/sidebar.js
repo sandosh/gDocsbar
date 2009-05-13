@@ -15,6 +15,7 @@ gbar = GDOCSBARUtils.extend({
             feedtype = this.$("feedtype");
             showtypes = this.$("showtypes");
             gdsearchform = this.$("gdsearchform");
+            gdBrowser.init();
         }).bind(this)();
         
         

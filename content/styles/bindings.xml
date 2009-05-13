@@ -118,10 +118,7 @@
 		<method name="preview">
 			<body>
         <![CDATA[
-          var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIWebNavigation).QueryInterface(Components.interfaces.nsIDocShellTreeItem).rootTreeItem.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindow);
-          var gBrowser = mainWindow.getBrowser();
-          var url = "http://docs.google.com/View?revision=_latest&docid=" + this.getAttribute('resourceId');
-          gBrowser.selectedTab = gBrowser.addTab(url);
+          gdBrowser.preview(this);
 				]]>
 			</body>
 		</method>

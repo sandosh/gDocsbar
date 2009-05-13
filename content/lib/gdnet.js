@@ -153,6 +153,19 @@ gdNet = Base.extend({
     }
 })
 
+gdBrowser = new Base;
+gdBrowser.extend({
+  _host: "http://docs.google.com",
+  init: function() {
+    this._mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIWebNavigation).QueryInterface(Components.interfaces.nsIDocShellTreeItem).rootTreeItem.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindow);
+    this._gBrowser = this._mainWindow.getBrowser();
+  },
+  preview: function(gdEntryEl) {
+    debug("in preview");
+    url = this._host + "/View?revision=_latest&docid=" + gdEntryEl.getAttribute('resourceId');
+    this._gBrowser.selectedTab = this._gBrowser.addTab(url);
+  }
+});
 
 gdListAPI = new Base;
 gdListAPI.extend({
