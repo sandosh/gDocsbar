@@ -60,7 +60,9 @@ gdocument.edit > *[mode=edit]{
     display:-moz-box;
 }
 
-
+gdocument.deleted {
+  background: #FF5555 no-repeat center center !important;
+}
 
 gdocument description.name{
     margin-left:25px;
@@ -106,7 +108,7 @@ gicon.all{
 gicon.save{
     background-position: 0px center;
 }
-gicon.star, gicon.nostar:hover{
+gicon.star{
     background-position: -272px center;
 }
 gicon.share{
@@ -127,7 +129,7 @@ gicon.hide{
 gicon.delete{
     background-position: -96px center;
 }
-gicon.nostar, gicon.star:hover{
+gicon.nostar{
     background-position: -304px center;
 }
 gicon.more{

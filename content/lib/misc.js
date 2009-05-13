@@ -150,28 +150,37 @@ Function.prototype.bind = function(obj) {
 }
 
 
-var debug = function() {
-  dump('TiseMe: ');
-  if (debug.caller && debug.caller.name)
-    dump(debug.caller.name + ': ')
-  for( var i=0; i < arguments.length; i++ ) {
-    if( i ) dump( ', ' );
-    switch( typeof arguments[i] ) {
-      case 'xml':
-        dump( arguments[i].toXMLString() );
-        break;s
-      case 'object':
-        dump( '[obj]\n' );
-        for( prop in arguments[i] )
-          dump( ' ' + prop + ': ' + arguments[i][prop] + '\n' );
-        dump( '[/obj]\n' );
-        break;
-      default:
-        dump( arguments[i] );
+if(typeof console == "undefined"){
+    console = new Base;
+    console.log = console.error = console.info = function(){
+      dump('TiseMe: ');
+      if (debug.caller && debug.caller.name)
+        dump(debug.caller.name + ': ')
+      for( var i=0; i < arguments.length; i++ ) {
+        if( i ) dump( ', ' );
+        switch( typeof arguments[i] ) {
+          case 'xml':
+            dump( arguments[i].toXMLString() );
+            break;s
+          case 'object':
+            dump( '[obj]\n' );
+            for( prop in arguments[i] )
+              dump( ' ' + prop + ': ' + arguments[i][prop] + '\n' );
+            dump( '[/obj]\n' );
+            break;
+          default:
+            dump( arguments[i] );
+        }
+      }
+      dump('\n');
     }
-  }
-  dump('\n');
 }
+
+var debug = function() {
+  var caller_name = debug.caller && debug.caller.name ? debug.caller.name : ''
+  console.log(arguments);
+}
+
 
 function executeSoon(aFunc)
 {

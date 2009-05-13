@@ -53,18 +53,9 @@
 		<method name="saveName">
 			<body>
 				<![CDATA[
-					gbar.addClass(this, "loading");
-					name = document.getAnonymousElementByAttribute(this, "anonid", "name_textbox");
-					
-					editLink = this.getAttribute('edit');
-			        etag = this.getAttribute('etag');
-			        outStr = gAtomFeed.updateTitle(name.value, etag);
-					
-					debug(outStr);
-					gdListAPI.rename(editLink, etag, this.nameSaved.bind(this), this.nameSavedError.bind(this) );
-					//mr = gdListAPI.setupRequest(editLink, {alt: "json"}, "PUT", true, {"Content-Type": "application/atom+xml", "If-Match": etag});
-			        //mr.send(outStr);
-					
+          			gbar.addClass(this, "loading");
+					this.newTitle = document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").value;
+          			gdListAPI.rename(this,document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").value);
 				]]>
 			</body>
 		</method>
@@ -90,17 +81,54 @@
 				]]>
 			</body>
 		</method>
+		<method name="deleted">
+			<parameter name="data" />
+			<body>
+				<![CDATA[
+						gbar.removeClass(this, "loading");
+						gbar.addClass(this, "deleted");
+				]]>
+			</body>
+		</method>
 		<method name="star">
 			<body>
 				<![CDATA[
-					editLink = this.getAttribute('edit');
-			        etag = this.getAttribute('etag');
-			        outStr = gAtomFeed.star();
-					
 					gbar.addClass(this, "loading");
-					debug(outStr);
-					mr = gdListAPI.setupRequest(editLink, {alt: "json"}, "PUT", true, this.nameSaved.bind(this), this.nameSavedError.bind(this), {"Content-Type": "application/atom+xml", "If-Match": etag});
-			        mr.send(outStr);
+					switch(this.getAttribute('star')){
+						case "star":
+						gdListAPI.unstar(this);
+						break;
+						
+						case "nostar":
+						gdListAPI.star(this);
+						break;
+					}
+				]]>
+			</body>
+		</method>
+		<method name="delete">
+			<body>
+				<![CDATA[
+					gbar.addClass(this, "loading");
+          			gdListAPI.delete(this);
+				]]>
+			</body>
+		</method>
+		<method name="hide">
+			<body>
+				<![CDATA[
+					gbar.addClass(this, "loading");
+          			gdListAPI.hide(this);
+				]]>
+			</body>
+		</method>
+		<method name="preview">
+			<body>
+        <![CDATA[
+          var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIWebNavigation).QueryInterface(Components.interfaces.nsIDocShellTreeItem).rootTreeItem.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindow);
+          var gBrowser = mainWindow.getBrowser();
+          var url = "http://docs.google.com/View?revision=_latest&docid=" + this.getAttribute('resourceId').split(':')[1];
+          gBrowser.selectedTab = gBrowser.addTab(url);
 				]]>
 			</body>
 		</method>

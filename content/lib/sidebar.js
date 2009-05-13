@@ -172,12 +172,15 @@ gbar = GDOCSBARUtils.extend({
 //        d.setAttribute("mode", "edit");
         d.setAttribute("name", e.title);
         d.setAttribute("star", e.starred ? "star" : "nostar");
+        d.setAttribute("_hidden", e.hidden);
         var monthname=new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
         datestring = this.zeroPadding(e.updated.getMonth()+1) + "/" + this.zeroPadding(e.updated.getDate());
         d.setAttribute("datetime", datestring);
         d.setAttribute("author", e.authors[0].name);
         d.setAttribute("edit", e.editLink);
         d.setAttribute("etag", e.etag);
+        d.setAttribute("resourceId",e.resourceId);
+        d.setAttribute("type", e._type);
         this.addClass(d, e._type);
         //this.addClass(d, "edit");
         return d;
