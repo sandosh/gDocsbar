@@ -355,7 +355,6 @@ gdListAPI.extend({
         //save file to target
         wbp.saveURI(uri,null,null,null,"Authorization:GoogleLogin auth=" + this._auth +"\r\n",file);
     }
-
 });
 
 

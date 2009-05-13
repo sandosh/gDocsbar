@@ -34,29 +34,29 @@
 	<menuitem label="View the published version"><gicon /><label value="View the published version" /></menuitem>
 	<menuitem label="Preview" oncommand="document.popupNode.preview()"><gicon /><label value="Preview" /></menuitem>
 	<menuseparator/>
-	<menu id="saveas-menu" label="Save as">
+	<menu id="saveas_menu" label="Save as" onpopupshowing="this.setAttribute('kind', document.popupNode.getAttribute('resource'));">
 	      
 	    
 	
    
 	<menupopup>
-	<menuitem label="HTML (zipped)" oncommand="document.popupNode.download('zip')"><gicon /><label value="HTML (zipped)" /></menuitem>
-	<menuitem label="OpenDocument" oncommand="document.popupNode.download('odt')"><gicon /><label value="OpenDocument" /></menuitem>
-	<menuitem label="RTF" oncommand="document.popupNode.download('rtf')"><gicon /><label value="RTF" /></menuitem>
-	<menuitem label="Word" oncommand="document.popupNode.download('doc')"><gicon /><label value="Word" /></menuitem>
+	<menuitem label="HTML (zipped)" oncommand="document.popupNode.download('zip')" document="true"><gicon /><label value="HTML (zipped)" /></menuitem>
+	<menuitem label="OpenDocument" oncommand="document.popupNode.download('odt')" document="true"><gicon /><label value="OpenDocument" /></menuitem>
+	<menuitem label="RTF" oncommand="document.popupNode.download('rtf')" document="true"><gicon /><label value="RTF" /></menuitem>
+	<menuitem label="Word" oncommand="document.popupNode.download('doc')" document="true"><gicon /><label value="Word" /></menuitem>
   
-  <menuitem label="PNG" oncommand="document.popupNode.download('png')"><gicon /><label value="PNG" /></menuitem>
-  <menuitem label="PDF" oncommand="document.popupNode.download('pdf')"><gicon /><label value="PDF" /></menuitem>
-	<menuitem label="Text" oncommand="document.popupNode.download('txt')"><gicon /><label value="Text" /></menuitem>
+  <menuitem label="PNG" oncommand="document.popupNode.download('png')" document="true" spreadsheet="true"><gicon /><label value="PNG" /></menuitem>
+  <menuitem label="PDF" oncommand="document.popupNode.download('pdf')" document="true" spreadsheet="true" presentation="true"><gicon /><label value="PDF" /></menuitem>
+	<menuitem label="Text" oncommand="document.popupNode.download('txt')" document="true" spreadsheet="true" presentation="true"><gicon /><label value="Text" /></menuitem>
   
-  <menuitem label="PPT" oncommand="document.popupNode.download('ppt')"><gicon /><label value="PPT" /></menuitem>
-	<menuitem label="SWF" oncommand="document.popupNode.download('swf')"><gicon /><label value="SWF" /></menuitem>
+  <menuitem label="PPT" oncommand="document.popupNode.download('ppt')"  presentation="true"><gicon /><label value="PPT" /></menuitem>
+	<menuitem label="SWF" oncommand="document.popupNode.download('swf')"  presentation="true"><gicon /><label value="SWF" /></menuitem>
   
-  <menuitem label="Excel" oncommand="document.popupNode.download('xls')"><gicon /><label value="Excel" /></menuitem>
-  <menuitem label="CSV" oncommand="document.popupNode.download('csv')"><gicon /><label value="CSV" /></menuitem>
-  <menuitem label="Open Document Spreadsheet" oncommand="document.popupNode.download('ods')"><gicon /><label value="Open Document Spreadsheet" /></menuitem>
-  <menuitem label="TSV (Tab Separated)" oncommand="document.popupNode.download('tsv')"><gicon /><label value="TSV (Tab Separated)" /></menuitem>
-  <menuitem label="HTML" oncommand="document.popupNode.download('html')"><gicon /><label value="HTML" /></menuitem>
+  <menuitem label="Excel" oncommand="document.popupNode.download('xls')" spreadsheet="true"><gicon /><label value="Excel" /></menuitem>
+  <menuitem label="CSV" oncommand="document.popupNode.download('csv')" spreadsheet="true"><gicon /><label value="CSV" /></menuitem>
+  <menuitem label="Open Document Spreadsheet" oncommand="document.popupNode.download('ods')" spreadsheet="true"><gicon /><label value="Open Document Spreadsheet" /></menuitem>
+  <menuitem label="TSV (Tab Separated)" oncommand="document.popupNode.download('tsv')" spreadsheet="true"><gicon /><label value="TSV (Tab Separated)" /></menuitem>
+  <menuitem label="HTML" oncommand="document.popupNode.download('html')" spreadsheet="true"><gicon /><label value="HTML" /></menuitem>
 	</menupopup>
 	</menu>
 	<menuseparator/>

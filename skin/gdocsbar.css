@@ -252,3 +252,15 @@ gdlistholder[empty] .nonemptytext{
     display:none;
 }
 
+#saveas_menu > menupopup > menuitem{
+    display:none;
+}
+#saveas_menu[kind=document] > menupopup > menuitem[document]{
+    display:-moz-box;
+}
+#saveas_menu[kind=spreadsheet] > menupopup > menuitem[spreadsheet]{
+    display:-moz-box;
+}
+#saveas_menu[kind=presentation] > menupopup > menuitem[presentation]{
+    display:-moz-box;
+}
