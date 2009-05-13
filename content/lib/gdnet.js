@@ -197,7 +197,7 @@ gdListAPI.extend({
         return r;
     },
     parseResponse: function(data){
-        //debug(data);
+        debug(data);
         try{
             
             
@@ -258,6 +258,10 @@ gdListAPI.extend({
         this.lastq['start-index'] = 1;
         mr = this.setupRequest(this.lasturl, this.lastq, "GET", null, success, error);
         mr.send(null);
+    },
+    rename: function(editLink, etag, success, error){
+        mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true, success, error, {"Content-Type": "application/atom+xml", "If-Match": etag});
+        mr.send(outStr);
     }
 });
 

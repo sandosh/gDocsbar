@@ -61,8 +61,9 @@
 			        outStr = gAtomFeed.updateTitle(name.value, etag);
 					
 					debug(outStr);
-					mr = gdListAPI.setupRequest(editLink, {alt: "json"}, "PUT", true, this.nameSaved.bind(this), this.nameSavedError.bind(this), {"Content-Type": "application/atom+xml", "If-Match": etag});
-			        mr.send(outStr);
+					gdListAPI.rename(editLink, etag, this.nameSaved.bind(this), this.nameSavedError.bind(this) );
+					//mr = gdListAPI.setupRequest(editLink, {alt: "json"}, "PUT", true, {"Content-Type": "application/atom+xml", "If-Match": etag});
+			        //mr.send(outStr);
 					
 				]]>
 			</body>
