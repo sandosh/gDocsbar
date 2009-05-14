@@ -144,7 +144,7 @@
 
 <binding id="gfolder" extends="xul:hbox">
 	<content>
-		<xul:gicon class="folder" /><xul:label value="folder name" />
+		<xul:gicon class="folder" /><xul:label xbl:inherits="value=title" />
 	</content>
 </binding>
 

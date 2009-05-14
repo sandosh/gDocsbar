@@ -10,6 +10,7 @@ gbar = GDOCSBARUtils.extend({
             page_list = this.$("gDocsList");
             page_login = this.$("gDocsBarLogin");
             gDocsList_list = this.$("gDocsList_list");
+            gDocsList_folders = this.$("gDocsList_folders");
             moreloader = this.$("moreloader");
             gdlistholder = this.$("gdlistholder");
             feedtype = this.$("feedtype");
@@ -49,7 +50,7 @@ gbar = GDOCSBARUtils.extend({
         page_list.setAttribute('collapsed', false);
         gdListAPI.init(auth);
         this.getFullDocList();
-        //this.getFolderList();
+        this.getFolderList();
     },
     getQueryParams: function(){
         var types = {};
@@ -188,23 +189,22 @@ gbar = GDOCSBARUtils.extend({
         return d;
     },
     getFolderList: function(){
-        
-        req = gbarc.setupRequest("http://docs.google.com/feeds/documents/private/full/-/folder?showfolders=true&alt=json", true);
-        req = req.wrappedJSObject;
-        //debug(req);
-        req.onreadystatechange = (function (aEvt) {
-    	    if (req.readyState == 4) {
-    	        
-    		     if(req.status == 200){
-    		         debug(req.responseText);
-         	         debug(req.status);
-    	         }else{
-    	             
-    	         }
-
-             }
-        }).bind(this);
-        req.send(null);
+        gdListAPI.getAllDocuments({feedtype: "folder"}, {showfolders: true}, this.displayFolderList.bind(this) , function(code, data){ debug(code +", "+ data); });
+    },
+    displayFolderList: function(data){
+        _gdFeed = new gdFeed(result);
+        debug("folder result...");
+        for( var i=0; i < _gdFeed.entries.length; i++){
+            e = _gdFeed.entries[i];
+            if(e.folders.length != 0)
+            {
+                continue;
+            }
+            var f = document.createElement("gfolder");
+            f.setAttribute('title', e.title);
+            f.setAttribute('id', e.resourceId);
+            gDocsList_folders.appendChild(f);
+        }
     },
     destruct: function(){
       nsIObserverService.removeObserver(this.gdocsbarobserver, "gdocsbar");

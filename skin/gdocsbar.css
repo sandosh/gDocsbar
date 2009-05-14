@@ -161,7 +161,16 @@ gfolder{
     padding:5px;
     background-color:#EFEFEF;
     border-bottom:1px solid #CCC;
+    cursor:pointer;
 }
+gfolder > *, gfolder:active{
+    cursor:pointer;
+}
+gfolder:hover{
+    background-color:#FFF;
+}
+
+
 vbox#gDocsList_folders > gfolder:nth-child(2n+1){
     background-color:#000;
 }
