@@ -9,6 +9,7 @@ function init() {
     this._loginResponse = null;
     this.nsIObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
     this.loggedIn = false;
+    this.email = null;
     debug("gdocsbar comp init done...");
 }
 
@@ -79,6 +80,7 @@ function login(email, password, captchaValue){
     debug("sending data...", data);
     
     req.send(data);
+    this.email = email;
 }
 
 function globalNotify(subject, topic){

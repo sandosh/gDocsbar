@@ -107,10 +107,7 @@
 	<hbox class="title">
 		<gicon class="folder" /><label value="Folders" />
 	</hbox>
-	<vbox id="gDocsList_folders">
-		<gfolder />
-		<gfolder />
-		<gfolder />
+	<vbox id="gDocsList_folders" maxheight="200" style="overflow:auto;">
 	</vbox>
 </page>
 <page id="gDocsBarLogin" title="hello"

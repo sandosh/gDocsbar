@@ -51,7 +51,7 @@ gdEntry = Base.extend({
         for(var i=0; i< r.author.length; i++){
             this.authors.push(new gdAuthor(f.author[i].name.$t, f.author[i].email.$t));
         }
-        this.resourceId = r.gd$resourceId.$t;
+        this.resourceId = r.gd$resourceId.$t.split(":")[1];
         this.writersCanInvite = Boolean(r.docs$writersCanInvite.value);
         this.feedLink = new Array();
         if(r['r.gd$feedLink']){
@@ -70,7 +70,9 @@ gdEntry = Base.extend({
 
 gdFeed = Base.extend({
     constructor: function(feed_json){
+        debug("constructing gdfeed..");
         f = feed_json.feed;
+        
         this.id = f.id.$t;
         this.title = f.title.$t;
         this.updated = UTIL_parseXmlDateTime(f.updated.$t);
@@ -78,15 +80,19 @@ gdFeed = Base.extend({
         for(var i=0; i< f.author.length; i++){
             this.authors.push(new gdAuthor(f.author[i].name.$t, f.author[i].email.$t));
         }
+        
         this.total = parseInt(f.openSearch$totalResults.$t);
         this.startIndex = parseInt(f.openSearch$startIndex.$t);
         this.etag = f.gd$etag;
         this.entries = new Array();
+        
         if(f['entry']){
             for(var i=0; i < f.entry.length; i++){
                 this.entries.push(new gdEntry(f.entry[i]));
             }
         }
+        
+        debug(this);
     }
 });
 
@@ -359,6 +365,34 @@ gdListAPI.extend({
         wbp.progressListener = dl;
         //save file to target
         wbp.saveURI(uri,null,null,null,"Authorization:GoogleLogin auth=" + this._auth +"\r\n",file);
+    },
+    getFolders: function(){
+        this.resetOptions();
+        debug("getFolders ");
+        if(query){
+            this._options.extend(query);
+        }
+        q = this._options.getObject();
+        
+        debug(q);
+        
+        url = this.listURL;
+        
+        if(types.showtype && types.feedtype){
+            url += "/-/" + types.showtype + "/" + types.feedtype;
+        }
+        else if(types.feedtype){
+            url +=  "/-/" + types.feedtype;
+        }
+        else if(types.showtype){
+            url +=  "/-/" + types.showtype;
+        }
+        debug(url);
+        mr = this.setupRequest(url, q, "GET", null, success, error);
+        mr.send(null);
+        
+        this.lasturl = url;
+        this.lastq = q;
     }
 });
 
