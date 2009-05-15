@@ -137,6 +137,13 @@
 				]]>
 			</body>
 		</method>
+		<method name="move">
+			<body>
+        <![CDATA[
+          gdListAPI.move(this);
+				]]>
+			</body>
+		</method>
 	</implementation>
 </binding>	
 

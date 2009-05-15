@@ -25,7 +25,7 @@
 	<menupopup id="gdocumentmenu" minwidth="150">
 	  <menuitem label="Star" oncommand="document.popupNode.star();"><gicon class="star" /><label value="Star" /></menuitem>
 	  <menuitem label="Share"><gicon class="share" /><label value="Share" /></menuitem>
-	  <menuitem label="Move to"><gicon class="move" /><label value="Move to" /></menuitem>
+	  <menuitem label="Move to" oncommand="document.popupNode.move();"><gicon class="move" /><label value="Move to" /></menuitem>
 	  <menuitem label="Hide" oncommand="document.popupNode.hide();"><gicon class="hide" /><label value="Hide" /></menuitem>
 	  <menuitem label="Delete" oncommand="document.popupNode.delete();"><gicon class="delete" /><label value="Delete" /></menuitem>
 	  <menuitem label="Rename" oncommand="document.popupNode.rename();"><gicon /><label value="Rename" /></menuitem>

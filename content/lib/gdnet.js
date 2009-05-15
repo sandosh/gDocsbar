@@ -97,7 +97,8 @@ gdNet = Base.extend({
     _req:null,
     constructor: function(url, method, queryparams, extraheaders){
         if(queryparams){
-            url += "?"+this.http_build_query(queryparams);
+            url +=  (url.indexOf("?") == -1 ? "?" : "&")  +this.http_build_query(queryparams);
+            debug(url);
         }
         this._url = url;
         this._req = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Components.interfaces.nsIXMLHttpRequest);
@@ -215,12 +216,7 @@ gdListAPI.extend({
             if(data) {  
             result = JSON.fromString(data);
             //var documentFeed = new gdFeed(result);
-            
             //var serializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"].createInstance(Components.interfaces.nsIDOMSerializer);
-            
-           
-            
-            
             return result;
             } else {
               // happens on document deletions
@@ -315,6 +311,15 @@ gdListAPI.extend({
         outStr = gAtomFeed.getUpdateXML(gdEntryEl, 'hide');
         mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true, gdEntryEl.deleted.bind(gdEntryEl),function(){}, {"Content-Type": "application/atom+xml", "If-Match": etag});
         mr.send(outStr);
+    },
+    move: function(gdEntryEl) {
+        debug("in move");
+        url = this._host + "/feeds/documents/private/full/-/folder?showfolders=true"
+        mr = this.setupRequest(url,{alt: "json"}, "GET",true, function(data) {
+          debug(data);
+          _gdFeed = new gdFeed(data);
+        },function() {});
+        mr.send('');
     },
     download: function(gdEntryEl,format) {
         debug("in download");
