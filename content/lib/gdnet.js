@@ -96,6 +96,67 @@ gdFeed = Base.extend({
     }
 });
 
+var gdMime = new Base;
+gdMime.extend({
+  getMIMEService: function() {
+      const mimeSvcContractID = "@mozilla.org/mime;1";
+      const mimeSvcIID = Components.interfaces.nsIMIMEService;
+      const mimeSvc = Components.classes[mimeSvcContractID].getService(mimeSvcIID);
+      return mimeSvc;
+  },
+  getMIMETypeForURI: function(aURI, name) {
+      try {
+          mime = this.getMIMEService().getTypeFromURI(aURI);
+          if (mime != "application/octet-stream" && mime != undefined) {
+              return mime
+          } else {
+              return false
+          }
+      } catch(e) {
+          return false
+      }
+      return false
+  },
+  getMIMETypeForExt: function(name) {
+      name = name.toLowerCase();
+      var ext = name.substr((name.lastIndexOf(".") + 1));
+      console.log(ext);
+      switch (ext) {
+      case "txt":
+          return "text/plain";
+      case "doc":
+          return "application/msword";
+      case "rtf":
+          return "application/msword";
+      case "ppt":
+          return "application/vnd.ms-powerpoint";
+      case "pdf":
+          return "application/pdf";
+      case "pps":
+          return "application/vnd.ms-powerpoint";
+      case "xls":
+          return "application/vnd.ms-excel";
+      case "csv":
+          return "application/vnd.ms-excel";
+      case "odt":
+          return "application/vnd.oasis.opendocument.text";
+      case "sxw":
+          return "application/vnd.sun.xml.writer";
+      case "ods":
+          return "application/vnd.oasis.opendocument.spreadsheet";
+      case "csv":
+        return "text/tab-separated-values";
+      case "tab":
+        return "text/tab-separated-values";
+      case "html":
+      case "htm":
+        return "text/html";
+      }
+  },
+  getMIMEType: function(file) {
+    return this.getMIMETypeForURI(file) ? this.getMIMETypeForURI(file) : this.getMIMETypeForExt(file.leafName);
+  }
+});
 
 gdNet = Base.extend({
     _method: "POST",
@@ -123,7 +184,7 @@ gdNet = Base.extend({
         req = event.target;
         if(req.readyState == 4){
             
-            if(req.status == 200){
+            if(req.status == 200 || req.status == 201){
                 debug(req.status);
                 this.onSuccess(req.responseText);
             }
@@ -392,6 +453,29 @@ gdListAPI.extend({
         
         this.lasturl = url;
         this.lastq = q;
+    },
+    upload: function(file,success,error) {
+      var ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+      var fileURI = ios.newFileURI(file);
+      //console.log("Le fichier " + file.leafName + " a été selectionné et pèse " + file.fileSize + "\n");
+      const MULTI = "@mozilla.org/io/multiplex-input-stream;1";
+      const FINPUT = "@mozilla.org/network/file-input-stream;1";
+      const STRINGIS = "@mozilla.org/io/string-input-stream;1";
+      const BUFFERED = "@mozilla.org/network/buffered-input-stream;1";
+      const nsIMultiplexInputStream = Components.interfaces.nsIMultiplexInputStream;
+      const nsIFileInputStream = Components.interfaces.nsIFileInputStream;
+      const nsIStringInputStream = Components.interfaces.nsIStringInputStream;
+      const nsIBufferedInputStream = Components.interfaces.nsIBufferedInputStream;
+      var mis = Components.classes[MULTI].createInstance(nsIMultiplexInputStream);
+      var fin = Components.classes[FINPUT].createInstance(nsIFileInputStream);
+      fin.init(file, 1, 292, null);
+      var buf = Components.classes[BUFFERED].createInstance(nsIBufferedInputStream);
+      buf.init(fin, (file.fileSize - 1));
+      mis.appendStream(buf);
+      debug(buf);
+      var mimetype = gdMime.getMIMEType(file);
+      mr = this.setupRequest(this._host + this.listURL, {alt: "json"}, "POST", true, success,error, {"Content-Type": gdMime.getMIMEType(file),"Content-Length":mis.available()-2,"Slug":file.leafName });
+      mr.send(mis);
     }
 });
 

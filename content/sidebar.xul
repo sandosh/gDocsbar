@@ -8,8 +8,10 @@
 	windowtype="SideBar" 
 	persist="screenX screenY width height sizemode"
     screenX="10" screenY="10"
-	id="sbGdocsbar" width="250">
-	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/misc.js" />
+    id="sbGdocsbar" width="250">
+  <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
+  <script type="application/x-javascript" src="chrome://global/content/nsTransferable.js" />
+  <script type="application/x-javascript" src="chrome://gdocsbar/content/lib/misc.js" />
 	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/utils.js" />
 	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/gdnet.js" />
 	
@@ -109,6 +111,10 @@
 	</hbox>
 	<vbox id="gDocsList_folders" maxheight="200" style="overflow:auto;">
 	</vbox>
+  <vbox id="uploadDrop" style="height:100px; overflow-x:hidden;" ondragdrop="nsDragAndDrop.drop(event, panelDragDropObserver)" ondragover="nsDragAndDrop.dragOver(event,panelDragDropObserver)" ondragexit="nsDragAndDrop.dragExit(event,panelDragDropObserver)" ondragenter="nsDragAndDrop.dragEnter(event,panelDragDropObserver)">
+        <label value="Drag and Drop files to upload." style="font-weight:; font-size:13px;"/>
+        <progressmeter id="uploadProgress" mode="determined" value="50" style="display:none;"/>
+  </vbox>
 </page>
 <page id="gDocsBarLogin" title="hello"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" style="background-color:white;">
