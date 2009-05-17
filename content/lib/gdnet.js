@@ -282,7 +282,8 @@ gdListAPI.extend({
         editLink = gdEntryEl.getAttribute('edit');
         etag = gdEntryEl.getAttribute('etag');
         starred = (gdEntryEl.getAttribute('star') == 'star' ? true : false);
-        outStr = outStr = gAtomFeed.getUpdateXML(gdEntryEl, 'title');
+        outStr = gAtomFeed.getUpdateXML(gdEntryEl, 'title');
+        debug(outStr);
         mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true,gdEntryEl.nameSaved.bind(gdEntryEl), gdEntryEl.nameSavedError.bind(gdEntryEl) , {"Content-Type": "application/atom+xml", "If-Match": etag});
         mr.send(outStr);
     },
@@ -320,12 +321,10 @@ gdListAPI.extend({
     },
     move: function(gdEntryEl) {
         debug("in move");
-        url = this._host + "/feeds/documents/private/full/-/folder?showfolders=true"
-        mr = this.setupRequest(url,{alt: "json"}, "GET",true, function(data) {
-          debug(data);
-          _gdFeed = new gdFeed(data);
-        },function() {});
-        mr.send('');
+        outStr = gAtomFeed.getMoveXML(gdEntryEl);
+        var folderlink = "http://docs.google.com/feeds/folders/private/full/folder:2cad677b-6d4e-4f25-be6d-cb2243f873d8"
+        mr = this.setupRequest(folderlink, {}, "POST", true, function(){},function(){}, {"Content-Type": "application/atom+xml"});
+        mr.send(outStr);
     },
     download: function(gdEntryEl,format) {
         debug("in download");
@@ -420,6 +419,8 @@ gAtomFeed.updateTitle = function(title, etag, starred){
     </atom:entry>;
     
     var myxmlStr = myxml.toXMLString();
+    xmlString = parent.toXMLString();
+    return xmlString;
     debug(myxmlStr);
     return this.addXMLHeader(myxmlStr);
 }*/
@@ -457,11 +458,29 @@ gAtomFeed.type = function(type){
     var myxml = <atom:category xmlns:atom="http://www.w3.org/2005/Atom" scheme="http://schemas.google.com/g/2005#kind" term={term} label={type}/>;
     return myxml;
 }
+
+gAtomFeed.id = function(id){
+    default xml namespace="http://www.w3.org/2005/Atom";
+    var myxml = <atom:id  xmlns:atom="http://www.w3.org/2005/Atom">{id}</atom:id>;
+    return myxml;
+}
 gAtomFeed.parent = function(etag){
     default xml namespace="http://www.w3.org/2005/Atom";
     var myxml = <atom:entry xmlns:atom="http://www.w3.org/2005/Atom" gd:etag={etag}  xmlns:gd="http://schemas.google.com/docs/2007">
     </atom:entry>;
     return myxml;
+}
+
+gAtomFeed.getMoveXML = function(gdEntryEl) {
+    default xml namespace="http://www.w3.org/2005/Atom";
+    var parent = <atom:entry xmlns:atom="http://www.w3.org/2005/Atom"  xmlns:gd="http://schemas.google.com/docs/2007"></atom:entry>;
+    debug("id is " + gdEntryEl.getAttribute('edit'));
+    var id = this.id(gdEntryEl.getAttribute('edit'));
+    parent.appendChild(id);
+    var type = this.type(gdEntryEl.getAttribute('edit'));
+    parent.appendChild(type);
+    xmlString = parent.toXMLString();
+    return xmlString;
 }
 
 gAtomFeed.getUpdateXML = function(gdEntryEl, overwrite){
@@ -482,7 +501,6 @@ gAtomFeed.getUpdateXML = function(gdEntryEl, overwrite){
     var type = this.type(gdEntryEl.getAttribute('type'));
     parent.appendChild(type);
     xmlString = parent.toXMLString();
-    debug(xmlString);
     return xmlString;
 }
 

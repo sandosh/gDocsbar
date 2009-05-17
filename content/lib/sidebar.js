@@ -182,7 +182,7 @@ gbar = GDOCSBARUtils.extend({
         d.setAttribute("edit", e.editLink);
         d.setAttribute("etag", e.etag);
         d.setAttribute("type", e._type);
-        d.setAttribute("resourceId",e.resourceId.split(':')[1]);
+        d.setAttribute("resourceId",e.resourceId);
         d.setAttribute("resource",e._type);
         this.addClass(d, e._type);
         //this.addClass(d, "edit");
