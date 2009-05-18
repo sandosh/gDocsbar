@@ -14,37 +14,15 @@
 	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/gdnet.js" />
 	
 	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/sidebar.js" />
+	<script type="application/x-javascript" src="chrome://gdocsbar/content/lib/folderinit.js" />
+	
 	<tree id="myTree" flex="1" hidecolumnpicker="false" seltype="single" class="tree"
-	      rows="5">
+	      rows="5"  onclick="gbar.navigateFolder(event)">
 	  <treecols id="myTree2-treeCols">
-	    <treecol id="myTree2-treeCol0" primary="true" flex="2" label="Column A"
+	    <treecol id="myTree2-treeCol0" primary="true" flex="2" label="Folders"
 	             persist="width" ordinal="1"/>
-	    <splitter class="tree-splitter" ordinal="2"/>
-	    <treecol id="myTree2-treeCol1" flex="1" label="Column B"
-	             persist="width" ordinal="3"/>
 	  </treecols>
-	  <treechildren>
-	    <treeitem>
-	      <treerow>
-	        <treecell label="1"/>
-	        <treecell label="a"/>
-	      </treerow>
-	    </treeitem>
-	    <!-- Make sure to set container="true" -->
-	    <treeitem container="true" open="true">
-	      <treerow>
-	        <treecell label="2"/>
-	        <treecell label="b"/>
-	      </treerow>
-	      <treechildren>
-	        <treeitem>
-	          <treerow>
-	            <treecell label="2a"/>
-	            <treecell label="ba"/>
-	          </treerow>
-	        </treeitem>
-	      </treechildren>
-	    </treeitem>
+	  <treechildren id="foldertreechildren">
 	  </treechildren>
 	</tree>
 </window>

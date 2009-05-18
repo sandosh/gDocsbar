@@ -7,6 +7,57 @@
     xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 	xmlns:html="http://www.w3.org/1999/xhtml">
 
+<binding id="treeEditable" extends="chrome://global/content/bindings/tree.xml#tree">
+	<content>
+	      <children/>
+	      <xul:treerows class="tree-container-treerows" xbl:inherits="dragover,dragdroptree">
+	        <children includes="treehead|treechildren"/>
+	      </xul:treerows>
+	</content>
+</binding>
+<binding id="gdfoldertreeitem" extends="chrome://global/content/bindings/tree.xml#tree-base">
+  <content>
+  	<children />
+  </content>
+  <implementation>
+    <method name="toggleOpenState">
+      <body>
+        <![CDATA[
+          if ((this.getAttribute('container') == 'true') &&
+               (this.getAttribute('empty') != 'true')) {
+             if (this.getAttribute('open') == 'true')
+               this.removeAttribute('open');
+             else this.setAttribute('open', 'true');
+          }
+        ]]>
+      </body>
+    </method>
+   <method name="open">
+     <body>
+        <![CDATA[
+          if ((this.getAttribute('container') == 'true') &&
+               (this.getAttribute('empty') != 'true')) {
+             if (this.getAttribute('open') != 'true')
+               this.setAttribute('open', 'true');
+          }
+        ]]>
+      </body>
+   </method>
+   <method name="close">
+     <body>
+        <![CDATA[
+          if ((this.getAttribute('container') == 'true') &&
+               (this.getAttribute('empty') != 'true')) {
+             if (this.getAttribute('open') == 'true')
+               this.removeAttribute('open');
+          }
+        ]]>
+      </body>
+   </method>
+ </implementation>
+</binding>
+
+
 <binding id="document" extends="xul:vbox">
 	<content>
 		<xul:hbox style="overflow-x:hidden;" mode="displayandedit">

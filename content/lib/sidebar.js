@@ -18,6 +18,7 @@ gbar = GDOCSBARUtils.extend({
             gdsearchform = this.$("gdsearchform");
             gdBrowser.init();
             folderHistory = new Array();
+            foldertree = this.$("foldertree");
         }).bind(this)();
         
         
@@ -220,6 +221,117 @@ gbar = GDOCSBARUtils.extend({
         this.addClass(d, e._type);
         //this.addClass(d, "edit");
         return d;
+    },
+    prepareFoldersForMove: function(){
+        foldertree.openPopup(document.popupNode, "at_pointer");
+        if(!foldertree.getAttribute('init'))
+            this.initTreeFolders();
+    },
+    moveToFolder: function(){
+        var tree = document.getElementById("myTree");
+          item = tree.view.getItemAtIndex(tree.currentIndex);
+            folder = item.firstChild.firstChild.getAttribute('folder');
+            if(!folder){
+                return ;
+            }
+        debug(folder, document.popupNode);
+    },
+    initTreeFolders: function(){
+       /* gbarc = Components.classes["@gdocsbar.com/gdocsbar;1"].getService(Components.interfaces.nsIGdocsBar);
+        auth = gbarc.getSignedRequestHeader();
+        gdListAPI.init(auth);
+*/
+        foldertree.setAttribute('init', 'done');
+        var types = {};
+        types['feedtype'] = "folder"
+        
+        gdListAPI.getAllDocuments(types, {showfolders: true}, this.displayFolderListTree.bind(this) , function(code, data){ debug(code +", "+ data); });
+    },
+    navigateFolder: function(event){
+        var tree = document.getElementById("myTree");
+          var tbo = tree.treeBoxObject;
+
+          // get the row, col and child element at the point
+          var row = { }, col = { }, child = { };
+          tbo.getCellAt(event.clientX, event.clientY, row, col, child);
+
+          var cellText = tree.view.getCellText(row.value, col.value);
+          debug(event);
+          
+          item = tree.view.getItemAtIndex(row.value);
+            //debug(item.firstChild.firstChild.id);
+            folder = item.firstChild.firstChild.getAttribute('folder');
+            if(!folder){
+                return ;
+            }
+            var types = {};
+            types['feedtype'] = "folder";
+            types['folder'] = folder;
+            gdListAPI.getAllDocuments(types, {showfolders: true}, (function(data){ debug(this.folder, data); this.scope.displayFolderListTree(data, this.folder); }).bind({'folder': folder, scope: this}) , function(code, data){ debug(code +", "+ data); });
+            
+    },
+    displayFolderListTree: function(data, folder){
+        
+        _gdFeed = new gdFeed(result);
+        
+        if(folder){
+            var c = document.getElementById( "f_" + folder ).parentNode.parentNode.getElementsByTagName("treechildren");
+            if(c.length > 0)
+                c[0].parentNode.removeChild(c[0]);
+        }
+        
+        if(_gdFeed.entries.length ==0 && folder){
+            treechildren = document.createElement("treechildren");
+            var treeitem = document.createElement("treeitem");
+            var treerow = document.createElement("treerow");
+            var treecell = document.createElement("treecell");
+
+            treecell.setAttribute('label', "[No folders found]");
+            treecell.setAttribute('disabled', true);
+//           treecell.setAttribute('id', e.resourceId);
+            treeitem.setAttribute('container', false);
+            treerow.appendChild(treecell);
+            treerow.setAttribute('disabled', true);
+            treeitem.appendChild(treerow);
+            
+            treeitem.setAttribute('disabled', true);
+            treechildren.appendChild(treeitem);
+            document.getElementById( "f_" + folder ).parentNode.parentNode.appendChild(treechildren);
+            return;
+        }
+        
+        if(folder){
+            treechildren = document.createElement("treechildren");
+        }
+        
+        for( var i=0; i < _gdFeed.entries.length; i++){
+            debug("inside folder loop");
+            e = _gdFeed.entries[i];
+            if(e.folders.length != 0 && !folder)
+            {
+                continue;
+            }
+            var treeitem = document.createElement("treeitem");
+            var treerow = document.createElement("treerow");
+            
+            
+            var treecell = document.createElement("treecell");
+            treecell.setAttribute('label', e.title);
+            treecell.setAttribute('folder', e.resourceId);
+            treecell.setAttribute('id', "f_" + e.resourceId);
+            treeitem.setAttribute('container', true);
+            treerow.appendChild(treecell);
+            treeitem.appendChild(treerow);
+            
+            if(folder){
+                treechildren.appendChild(treeitem);
+            }
+            else
+                this.$("foldertreechildren").appendChild(treeitem);
+        }
+        if(folder){
+            document.getElementById( "f_" + folder ).parentNode.parentNode.appendChild(treechildren);
+        }
     },
     getFolderList: function(){
         

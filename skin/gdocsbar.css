@@ -277,3 +277,12 @@ gdlistholder[empty] .nonemptytext{
 #saveas_menu[kind=presentation] > menupopup > menuitem[presentation]{
     display:-moz-box;
 }
+
+gdfoldertreeitem{
+    -moz-binding: url(chrome://gdocsbar/content/styles/bindings.xml#gdfoldertreeitem);
+}
+
+foldertree{
+    -moz-binding: url(chrome://gdocsbar/content/styles/bindings.xml#treeEditable);
+    -moz-box-orient:vertical;
+}

@@ -25,7 +25,7 @@
 	<menupopup id="gdocumentmenu" minwidth="150">
 	  <menuitem label="Star" oncommand="document.popupNode.star();"><gicon class="star" /><label value="Star" /></menuitem>
 	  <menuitem label="Share"><gicon class="share" /><label value="Share" /></menuitem>
-	  <menuitem label="Move to"><gicon class="move" /><label value="Move to" /></menuitem>
+	  <menuitem label="Move to" oncommand="gbar.prepareFoldersForMove();"><gicon class="move" /><label value="Move to" /></menuitem>
 	  <menuitem label="Hide" oncommand="document.popupNode.hide();"><gicon class="hide" /><label value="Hide" /></menuitem>
 	  <menuitem label="Delete" oncommand="document.popupNode.delete();"><gicon class="delete" /><label value="Delete" /></menuitem>
 	  <menuitem label="Rename" oncommand="document.popupNode.rename();"><gicon /><label value="Rename" /></menuitem>
@@ -72,7 +72,24 @@
 		<menuitem label="Hidden"><gicon class="hidden"/><label value="Hidden" /></menuitem>
 		<menuitem label="Trashed"><gicon class="delete"/><label value="Trashed" /></menuitem>
 	</menupopup>
-	
+	<popupset>
+		<panel id="foldertree" noautohide="false" width="400" onpopuphiding="return false;">
+			<vbox style="padding:5px; background-color:#eee;" height="300" flex="1">
+				<tree id="myTree" flex="1" hidecolumnpicker="false" seltype="single" class="tree"
+				      onclick="gbar.navigateFolder(event)">
+				  <treecols id="myTree2-treeCols">
+				    <treecol id="myTree2-treeCol0" primary="true" flex="2" label="Folders"
+				             persist="width" ordinal="1"/>
+				  </treecols>
+				  <treechildren id="foldertreechildren">
+				  </treechildren>
+				</tree>
+				<hbox mode="move">
+					<button label="Move" oncommand="gbar.moveToFolder();"/>
+				</hbox>
+			</vbox>
+		</panel>
+	</popupset>
 <page id="gDocsList" title="List" flex="1">
 	<hbox class="title">
 		<menulist id="feedtype">
