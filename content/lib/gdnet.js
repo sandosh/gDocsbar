@@ -70,7 +70,7 @@ gdEntry = Base.extend({
 
 gdFeed = Base.extend({
     constructor: function(feed_json){
-        debug("constructing gdfeed..");
+        //debug("constructing gdfeed..");
         f = feed_json.feed;
         
         this.id = f.id.$t;
@@ -92,7 +92,7 @@ gdFeed = Base.extend({
             }
         }
         
-        debug(this);
+        //debug(this);
     }
 });
 
@@ -105,14 +105,15 @@ gdNet = Base.extend({
         if(queryparams){
             url += "?"+this.http_build_query(queryparams);
         }
+        debug("out URL:", url);
         this._url = url;
         this._req = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Components.interfaces.nsIXMLHttpRequest);
         this._req.open((method ? method : this._method), url, true);
         this._req.setRequestHeader('GData-Version','2.0');
         if(extraheaders && typeof extraheaders == "object"){
             for(prop in extraheaders){
-                debug("setting header..");
-                debug(prop+": "+extraheaders[prop]);
+                //debug("setting header..");
+                //debug(prop+": "+extraheaders[prop]);
                 this._req.setRequestHeader(prop, extraheaders[prop]);
             }
         }
@@ -123,26 +124,26 @@ gdNet = Base.extend({
         if(req.readyState == 4){
             
             if(req.status == 200){
-                debug(req.status);
+                //debug(req.status);
                 this.onSuccess(req.responseText);
             }
             else{
-                debug(req.status);
-                debug(req.responseText);
+                //debug(req.status);
+                //debug(req.responseText);
                 this.onError(req.status, req.responseText);
                 
             }
         }
     },
     send: function(data){
-        debug("Sending data to: "+this._url);
+        //debug("Sending data to: "+this._url);
         this._req.send(data ? data: null);
     },
     onSuccess: function(data){
-        debug("onSuccess");
+        //debug("onSuccess");
     },
     onError: function(code, data){
-        debug("onError: "+code)
+        //debug("onError: "+code)
     },
     
     http_build_query: function(var_arr, key_prefix, key_suffix){
@@ -167,7 +168,7 @@ gdBrowser.extend({
     this._gBrowser = this._mainWindow.getBrowser();
   },
   preview: function(gdEntryEl) {
-    debug("in preview");
+    //debug("in preview");
     url = this._host + "/View?revision=_latest&docid=" + gdEntryEl.getAttribute('resourceId');
     this._gBrowser.selectedTab = this._gBrowser.addTab(url);
   }
@@ -177,6 +178,8 @@ gdListAPI = new Base;
 gdListAPI.extend({
     _host: "http://docs.google.com",
     listURL: "/feeds/documents/private/full",
+//    folderURL: "http://docs.google.com/feeds/folders/private/full/folder%3A845870d8-2b02-4382-aa55-730e71dcb648/-/folder?showfolders=true",
+    folderURL: "/feeds/folders/private/full/folder%3A",
     documentExport: "http://docs.google.com/feeds/download/documents/Export",
     presentationExport: "http://docs.google.com/feeds/download/presentations/Export",
     spreadsheetExport: "http://spreadsheets.google.com/feeds/download/spreadsheets/Export",
@@ -198,7 +201,7 @@ gdListAPI.extend({
             o = new Base;
             o.extend({"Authorization":"GoogleLogin auth="+this._auth});
             
-            debug(extheaders);
+            //debug(extheaders);
             if(extheaders){
                 o.extend(extheaders);
             }
@@ -207,17 +210,18 @@ gdListAPI.extend({
             r = new gdNet(url, method, (data ? data : null), o.getObject());
         }
         catch(e){
-            debug(e);
+            //debug(e);
         }
         r._onSuccess = onSuccess;
         r.onSuccess = (function(data){ this._onSuccess(this.parseResponse(data)); }).bind(r);
         r.onError = onError;
         r.parseResponse = this.parseResponse;
+        debug(r);
         return r;
     },
     parseResponse: function(data){
         try{
-            //debug(data);     
+            ////debug(data);     
             if(data) {  
             result = JSON.fromString(data);
             //var documentFeed = new gdFeed(result);
@@ -234,8 +238,8 @@ gdListAPI.extend({
             }
         }
         catch(e){
-            debug("Exception: "+e);
-            debug(data);
+            //debug("Exception: "+e);
+            //debug(data);
             return false;
         }
     },
@@ -245,7 +249,7 @@ gdListAPI.extend({
     },
     getAllDocuments: function(types, query, success, error){
         this.resetOptions();
-        debug("getAllDocuments ");
+        //debug("getAllDocuments ");
         if(query){
             this._options.extend(query);
         }
@@ -253,7 +257,10 @@ gdListAPI.extend({
         
         debug(q);
         
-        url = this.listURL;
+        if(types['folder'])
+            url = this.folderURL + types.folder;
+        else
+            url = this.listURL;
         
         if(types.showtype && types.feedtype){
             url += "/-/" + types.showtype + "/" + types.feedtype;
@@ -264,12 +271,21 @@ gdListAPI.extend({
         else if(types.showtype){
             url +=  "/-/" + types.showtype;
         }
-        debug(url);
+        //debug(url);
         mr = this.setupRequest(url, q, "GET", null, success, error);
         mr.send(null);
         
         this.lasturl = url;
+//        debug("setting last url...", url);
         this.lastq = q;
+    },
+    test: function(){
+        debug("testing...");
+        mr = this.setupRequest("/feeds/documents/private/full", this._options.getObject(), "GET", null, function(data){ debug(data); }, function(){});
+        
+        console.log("mr", mr);
+        
+        mr.send(null);
     },
     getMoreDocuments: function(success, error){
         this.lastq['start-index'] += this.lastq['max-results'];
@@ -278,11 +294,12 @@ gdListAPI.extend({
     },
     refreshFeed: function(success, error){
         this.lastq['start-index'] = 1;
+        debug("last url is", this.lasturl);
         mr = this.setupRequest(this.lasturl, this.lastq, "GET", null, success, error);
         mr.send(null);
     },
     rename: function(gdEntryEl,newName){
-        debug("in rename3");
+        //debug("in rename3");
         editLink = gdEntryEl.getAttribute('edit');
         etag = gdEntryEl.getAttribute('etag');
         starred = (gdEntryEl.getAttribute('star') == 'star' ? true : false);
@@ -291,13 +308,13 @@ gdListAPI.extend({
         mr.send(outStr);
     },
     star: function(gdEntryEl) {
-        debug("in star 2");
+        //debug("in star 2");
         editLink = gdEntryEl.getAttribute('edit');
         etag = gdEntryEl.getAttribute('etag');
         outStr = gAtomFeed.getUpdateXML(gdEntryEl, 'star'); //star(gdEntryEl.getAttribute('name'), etag);
         mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true, gdEntryEl.nameSaved.bind(gdEntryEl), gdEntryEl.nameSavedError.bind(gdEntryEl)  , {"Content-Type": "application/atom+xml", "If-Match": etag});
         mr.send(outStr);
-        debug(outStr);
+        //debug(outStr);
     },
     unstar: function(gdEntryEl){
         editLink = gdEntryEl.getAttribute('edit');
@@ -307,7 +324,7 @@ gdListAPI.extend({
         mr.send(outStr);
     },
     delete: function(gdEntryEl) {
-        debug("in delete");
+        //debug("in delete");
         editLink = gdEntryEl.getAttribute('edit');
         etag = gdEntryEl.getAttribute('etag');
         // TODO: error functions to be defined. Call refreshdocumentfeed in success ??
@@ -323,7 +340,7 @@ gdListAPI.extend({
         mr.send(outStr);
     },
     download: function(gdEntryEl,format) {
-        debug("in download");
+        //debug("in download");
         resource = gdEntryEl.nameSaved.bind('resource');
         var fmCmd = {"pdf" : 12, "xls" : 4, "csv" : 5, "ods" : 13, "tsv" : 23, "html" : 102 };
         key = gdEntryEl.getAttribute('resourceId');
@@ -334,7 +351,7 @@ gdListAPI.extend({
         } else {
           var url = this.documentExport + "?docID="+ key +"&exportFormat=" + format
         }
-        debug(url);
+        //debug(url);
         filename = gdEntryEl.getAttribute('name') + '.' + format;
         netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
         // Open the save file dialog
@@ -363,13 +380,13 @@ gdListAPI.extend({
     },
     getFolders: function(){
         this.resetOptions();
-        debug("getFolders ");
+        //debug("getFolders ");
         if(query){
             this._options.extend(query);
         }
         q = this._options.getObject();
         
-        debug(q);
+        //debug(q);
         
         url = this.listURL;
         
@@ -382,7 +399,7 @@ gdListAPI.extend({
         else if(types.showtype){
             url +=  "/-/" + types.showtype;
         }
-        debug(url);
+        //debug(url);
         mr = this.setupRequest(url, q, "GET", null, success, error);
         mr.send(null);
         
@@ -415,7 +432,7 @@ gAtomFeed.updateTitle = function(title, etag, starred){
     </atom:entry>;
     
     var myxmlStr = myxml.toXMLString();
-    debug(myxmlStr);
+    //debug(myxmlStr);
     return this.addXMLHeader(myxmlStr);
 }*/
 gAtomFeed.unstar = function(title, etag){
@@ -428,7 +445,7 @@ gAtomFeed.unstar = function(title, etag){
     </atom:entry>;
     
     var myxmlStr = myxml.toXMLString();
-    debug(myxmlStr);
+    //debug(myxmlStr);
     return this.addXMLHeader(myxmlStr);
 }
 gAtomFeed.hide = function(){
@@ -477,7 +494,7 @@ gAtomFeed.getUpdateXML = function(gdEntryEl, overwrite){
     var type = this.type(gdEntryEl.getAttribute('type'));
     parent.appendChild(type);
     xmlString = parent.toXMLString();
-    debug(xmlString);
+    //debug(xmlString);
     return xmlString;
 }
 

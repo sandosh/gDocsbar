@@ -138,6 +138,10 @@ gicon.more{
 gicon.more:hover{
     background-position: -384px center;
 }
+gicon.back{
+    background-position: -416px center;
+    background-color:white;
+}
 
 gicon.options{
     background-position: -592px center;

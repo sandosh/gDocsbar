@@ -17,6 +17,7 @@ gbar = GDOCSBARUtils.extend({
             showtypes = this.$("showtypes");
             gdsearchform = this.$("gdsearchform");
             gdBrowser.init();
+            folderHistory = new Array();
         }).bind(this)();
         
         
@@ -52,10 +53,31 @@ gbar = GDOCSBARUtils.extend({
         this.getFullDocList();
         this.getFolderList();
     },
+    setFolder: function(folderid, back){
+        gdlistholder.setAttribute('folder', folderid);
+        if(!back)
+            folderHistory.push(folderid);
+        this.getFullDocList();
+        this.getFolderList();
+    },
+    goBackFolder: function(){
+        folderHistory.pop();
+        if(folderHistory.length > 0)
+            this.setFolder(folderHistory[folderHistory.length -1], true);
+        else
+        {
+            gdlistholder.removeAttribute('folder');
+            this.getFullDocList();
+            this.getFolderList();
+        }
+    },
     getQueryParams: function(){
         var types = {};
         types.feedtype = feedtype.value;
         types.showtype = showtypes.value;
+        
+        if(gdlistholder.getAttribute('folder'))
+            types.folder = gdlistholder.getAttribute('folder');
         
         a = false;
         var b = gdsearchform.getQueryParams();        
@@ -80,9 +102,18 @@ gbar = GDOCSBARUtils.extend({
         return out;
     },
     getMoreDocuments: function(){
+        /*
         debug("getting more...");
         this.addClass(gdlistholder, "loading");
         gdListAPI.getMoreDocuments(this.displayPartialDocList.bind(this) , function(){ debug("error"); });
+        */
+        this.addClass(gdlistholder, "loading");
+        q = this.getQueryParams();
+        q.query = {}
+        q.query['start-index'] = parseInt(gdlistholder.getAttribute('startindex')) + parseInt(gdlistholder.getAttribute('numshowing'));
+        //debug("got query...", q);
+        gdListAPI.getAllDocuments(q.types, (q.query ? q.query : null), this.displayPartialDocList.bind(this) , function(code, data){ debug(code +", "+ data); });
+        
     },
     getFullDocList: function(){
         debug("setting up requests...");
@@ -93,7 +124,10 @@ gbar = GDOCSBARUtils.extend({
     },
     refreshDocumentFeed: function(){
         gdlistholder.clearContents();
-        gdListAPI.refreshFeed(this.displayDocList.bind(this) , function(code, data){ debug(code +", "+ data); });
+        this.addClass(gdlistholder, "loading");
+        q = this.getQueryParams();
+        q.query['last-index'] = 1;
+        gdListAPI.getAllDocuments(q.types, (q.query ? q.query : null), this.displayDocList.bind(this) , function(code, data){ debug(code +", "+ data); });
     },
     displayRefreshedFeed: function(){
         
@@ -143,16 +177,15 @@ gbar = GDOCSBARUtils.extend({
     },
     displayDocList: function(result){
         _gdFeed = new gdFeed(result);
-
         this.removeClass(gdlistholder, "loading");
         if(_gdFeed.entries.length < 1){
             gdlistholder.setAttribute("empty", true);
             return false;
         }
         gdlistholder.removeAttribute("empty");
-        debug(_gdFeed.total);
+//        debug(_gdFeed.total);
         entries = _gdFeed.entries;
-        debug("hello");
+//        debug("hello");
 
         for(var i=0; i<entries.length; i++){
             var entry = this.makegdocument(entries[i]);
@@ -189,20 +222,32 @@ gbar = GDOCSBARUtils.extend({
         return d;
     },
     getFolderList: function(){
-        gdListAPI.getAllDocuments({feedtype: "folder"}, {showfolders: true}, this.displayFolderList.bind(this) , function(code, data){ debug(code +", "+ data); });
+        
+        while(gDocsList_folders.childNodes.length > 0){
+            gDocsList_folders.removeChild(gDocsList_folders.firstChild);
+        }
+        
+        var types = {};
+        types['feedtype'] = "folder"
+        if(gdlistholder.getAttribute('folder'))
+            types.folder = gdlistholder.getAttribute('folder');
+            
+        gdListAPI.getAllDocuments(types, {showfolders: true}, this.displayFolderList.bind(this) , function(code, data){ debug(code +", "+ data); });
     },
     displayFolderList: function(data){
+        debug(data);
         _gdFeed = new gdFeed(result);
         debug("folder result...");
         for( var i=0; i < _gdFeed.entries.length; i++){
             e = _gdFeed.entries[i];
-            if(e.folders.length != 0)
+            if(e.folders.length != 0 && !gdlistholder.hasAttribute('folder'))
             {
                 continue;
             }
             var f = document.createElement("gfolder");
             f.setAttribute('title', e.title);
             f.setAttribute('id', e.resourceId);
+            f.setAttribute('onclick', "gbar.setFolder(this.getAttribute('id'));")
             gDocsList_folders.appendChild(f);
         }
     },

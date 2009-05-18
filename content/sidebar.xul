@@ -105,7 +105,7 @@
 	<splitter collapse="before" resizeafter="farthest" collapsed="true">
 	  </splitter>
 	<hbox class="title">
-		<gicon class="folder" /><label value="Folders" />
+		<gicon class="back" onclick="gbar.goBackFolder();"/><gicon class="folder" /><label value="Folders" />
 	</hbox>
 	<vbox id="gDocsList_folders" maxheight="200" style="overflow:auto;">
 	</vbox>
