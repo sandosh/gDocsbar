@@ -1,6 +1,41 @@
 Components.utils.import("resource://gre/modules/JSON.jsm");
 
+var panelDragDropObserver = 
+{
+	onDrop : function (evt, transferData, session) {
+		evt.preventDefault(); 
+		debug(evt);
+		evt.preventDefault(); 
+		debug('ondrop...');
+		gbar.getDropFiles(session);
+		document.getElementById('uploadDrop').style.backgroundColor = "#93C2F1";
+	},
+	onDragOver : function (evt, transferData, session) {
+		document.getElementById('uploadDrop').style.backgroundColor = "#FAE298";
+		evt.preventDefault(); 
+		//debug('ondragover...');
+		
+	},
+	ondragenter : function (evt, transferData, session) {
+		evt.preventDefault(); 
+		debug('ondragenter...');
+	},
+	onDragExit : function (evt, transferData, session) {
+		evt.preventDefault(); 
+		debug('onDragExit...');
+		document.getElementById('uploadDrop').style.backgroundColor = "#93C2F1";
+	},
+	getSupportedFlavours: function () {
+    var flavourSet = new FlavourSet();
+    flavourSet.appendFlavour("text/x-moz-url");
+    //flavourSet.appendFlavour("text/unicode");
+    //flavourSet.appendFlavour("application/x-moz-file", "nsIFile");
+    return flavourSet;
+  }
+}
 gbar = GDOCSBARUtils.extend({
+    _uploadQ : [],
+    _uploadStatus : false,
     init: function(){
         (function(){
             $ = this.$;
@@ -216,7 +251,7 @@ gbar = GDOCSBARUtils.extend({
         d.setAttribute("edit", e.editLink);
         d.setAttribute("etag", e.etag);
         d.setAttribute("type", e._type);
-        d.setAttribute("resourceId",e.resourceId.split(':')[1]);
+        d.setAttribute("resourceId",e.resourceId);
         d.setAttribute("resource",e._type);
         this.addClass(d, e._type);
         //this.addClass(d, "edit");
@@ -235,6 +270,7 @@ gbar = GDOCSBARUtils.extend({
                 return ;
             }
         debug(folder, document.popupNode);
+        document.popupNode.move(folder);
     },
     initTreeFolders: function(){
        /* gbarc = Components.classes["@gdocsbar.com/gdocsbar;1"].getService(Components.interfaces.nsIGdocsBar);
@@ -398,7 +434,86 @@ gbar = GDOCSBARUtils.extend({
         editLink = el.getAttribute('edit');
         etag = el.getAttribute('etag');
         outStr = gAtomFeed.updateTitle(newName);
-        
+    },
+    getDropFiles: function(dropSession) {
+      debug("dropped files " + dropSession.numDropItems);
+      for (var m = 0; m < dropSession.numDropItems; m++) {
+        var tobj = Components.classes["@mozilla.org/widget/transferable;1"].createInstance(Components.interfaces.nsITransferable);
+        tobj.addDataFlavor("application/x-moz-file");
+        //tobj.addDataFlavor("text/x-moz-url");
+        //tobj.addDataFlavor("text/html");
+        //tobj.addDataFlavor("text/unicode");
+        dropSession.getData(tobj, m);
+
+
+        var dataObj = new Object();
+        var dropSizeObj = new Object();
+        var flavourObj = new Object();
+        tobj.getAnyTransferData(flavourObj, dataObj, dropSizeObj);
+        debug("in getdrop files");
+        debug(flavourObj.value.toString());
+        //prompt("Save as", "default value in the text field");
+        /*
+        if(flavourObj.value.toString() == "text/x-moz-url")
+        {
+          var myObj = dataObj.value.QueryInterface(Components.interfaces.nsISupportsString);
+          debug(dataObj);
+          debug(dataObj.data);
+          debug(myObj);
+        }
+        else if(flavourObj.value.toString() == "text/html"){
+          var myObj = dataObj.value.QueryInterface(Components.interfaces.nsISupportsString);
+          this._uploadQ.push({"data": dataObj, "_size":dropSizeObj, "_type": "data", "name": prompt("Save as", "file name")+(this.getCharPreference('clipboardExtension') ? "."+this.getCharPreference('clipboardExtension') : "")});
+        }
+        else if (flavourObj.value.toString() == "application/x-moz-file") {
+        */
+        if (flavourObj.value.toString() == "application/x-moz-file") {
+          debug("in x-moz-file");
+          var fileObj = dataObj.value.QueryInterface(Components.interfaces.nsIFile);
+          _path = fileObj.parent ? fileObj.parent.path: fileObj.path;
+          var dupe = false;
+          for (var i = 0; i < this._uploadQ.length; i++) {
+              path = this._uploadQ[i].file.parent ? this._uploadQ[i].file.parent.path: this._uploadQ[i].file.path;
+              if (fileObj.leafName == this._uploadQ[i].file.leafName && path == _path) {
+                  dupe = true;
+                  debug("dupe");
+                  break
+              }
+          }
+          if (dupe || fileObj.isDirectory()) {
+              continue
+          }
+          debug("filename: " + fileObj.leafName);
+          this._uploadQ.push({"file": fileObj, "_type": "file", "name": fileObj.leafName});
+        } 
+      }
+      this.processQ();
+    },
+    processQ: function() {
+      if (this._uploadQ.length > 0) {
+         if(this._uploadQ[0]._type == "file"){
+           debug("in file");
+           gdListAPI.upload(this._uploadQ[0].file,this.uploadSuccess.bind(this),this.uploadError.bind(this));
+         }
+         else if(this._uploadQ[0]._type == "data")
+           debug("in data");
+      } else {
+           debug("in else");
+        if (this._uploadQ.length == 0) {
+           debug("queue is 0..refreshing docs list");
+           this.getFullDocList();
+        }
+      }
+    },
+    uploadSuccess: function(data) {
+      debug("upload success");
+      if (this._uploadQ.length > 0) {
+        this._uploadQ.splice(0, 1);
+      } 
+      this.processQ();
+    },
+    uploadError: function(data,error) {
+      debug("upload failed");
     }
 });
 

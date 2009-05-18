@@ -96,6 +96,67 @@ gdFeed = Base.extend({
     }
 });
 
+var gdMime = new Base;
+gdMime.extend({
+  getMIMEService: function() {
+      const mimeSvcContractID = "@mozilla.org/mime;1";
+      const mimeSvcIID = Components.interfaces.nsIMIMEService;
+      const mimeSvc = Components.classes[mimeSvcContractID].getService(mimeSvcIID);
+      return mimeSvc;
+  },
+  getMIMETypeForURI: function(aURI, name) {
+      try {
+          mime = this.getMIMEService().getTypeFromURI(aURI);
+          if (mime != "application/octet-stream" && mime != undefined) {
+              return mime
+          } else {
+              return false
+          }
+      } catch(e) {
+          return false
+      }
+      return false
+  },
+  getMIMETypeForExt: function(name) {
+      name = name.toLowerCase();
+      var ext = name.substr((name.lastIndexOf(".") + 1));
+      console.log(ext);
+      switch (ext) {
+      case "txt":
+          return "text/plain";
+      case "doc":
+          return "application/msword";
+      case "rtf":
+          return "application/msword";
+      case "ppt":
+          return "application/vnd.ms-powerpoint";
+      case "pdf":
+          return "application/pdf";
+      case "pps":
+          return "application/vnd.ms-powerpoint";
+      case "xls":
+          return "application/vnd.ms-excel";
+      case "csv":
+          return "application/vnd.ms-excel";
+      case "odt":
+          return "application/vnd.oasis.opendocument.text";
+      case "sxw":
+          return "application/vnd.sun.xml.writer";
+      case "ods":
+          return "application/vnd.oasis.opendocument.spreadsheet";
+      case "csv":
+        return "text/tab-separated-values";
+      case "tab":
+        return "text/tab-separated-values";
+      case "html":
+      case "htm":
+        return "text/html";
+      }
+  },
+  getMIMEType: function(file) {
+    return this.getMIMETypeForURI(file) ? this.getMIMETypeForURI(file) : this.getMIMETypeForExt(file.leafName);
+  }
+});
 
 gdNet = Base.extend({
     _method: "POST",
@@ -103,7 +164,8 @@ gdNet = Base.extend({
     _req:null,
     constructor: function(url, method, queryparams, extraheaders){
         if(queryparams){
-            url += "?"+this.http_build_query(queryparams);
+            url +=  (url.indexOf("?") == -1 ? "?" : "&")  +this.http_build_query(queryparams);
+            debug(url);
         }
         debug("out URL:", url);
         this._url = url;
@@ -123,8 +185,8 @@ gdNet = Base.extend({
         req = event.target;
         if(req.readyState == 4){
             
-            if(req.status == 200){
-                //debug(req.status);
+            if(req.status == 200 || req.status == 201){
+                debug(req.status);
                 this.onSuccess(req.responseText);
             }
             else{
@@ -225,12 +287,7 @@ gdListAPI.extend({
             if(data) {  
             result = JSON.fromString(data);
             //var documentFeed = new gdFeed(result);
-            
             //var serializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"].createInstance(Components.interfaces.nsIDOMSerializer);
-            
-           
-            
-            
             return result;
             } else {
               // happens on document deletions
@@ -303,7 +360,8 @@ gdListAPI.extend({
         editLink = gdEntryEl.getAttribute('edit');
         etag = gdEntryEl.getAttribute('etag');
         starred = (gdEntryEl.getAttribute('star') == 'star' ? true : false);
-        outStr = outStr = gAtomFeed.getUpdateXML(gdEntryEl, 'title');
+        outStr = gAtomFeed.getUpdateXML(gdEntryEl, 'title');
+        debug(outStr);
         mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true,gdEntryEl.nameSaved.bind(gdEntryEl), gdEntryEl.nameSavedError.bind(gdEntryEl) , {"Content-Type": "application/atom+xml", "If-Match": etag});
         mr.send(outStr);
     },
@@ -337,6 +395,13 @@ gdListAPI.extend({
         
         outStr = gAtomFeed.getUpdateXML(gdEntryEl, 'hide');
         mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true, gdEntryEl.deleted.bind(gdEntryEl),function(){}, {"Content-Type": "application/atom+xml", "If-Match": etag});
+        mr.send(outStr);
+    },
+    move: function(gdEntryEl, folder) {
+        debug("in move");
+        outStr = gAtomFeed.getMoveXML(gdEntryEl);
+        var folderlink = "http://docs.google.com/feeds/folders/private/full/folder:"+folder;
+        mr = this.setupRequest(folderlink, {}, "POST", true, function(){},function(){}, {"Content-Type": "application/atom+xml"});
         mr.send(outStr);
     },
     download: function(gdEntryEl,format) {
@@ -405,6 +470,29 @@ gdListAPI.extend({
         
         this.lasturl = url;
         this.lastq = q;
+    },
+    upload: function(file,success,error) {
+      var ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+      var fileURI = ios.newFileURI(file);
+      //console.log("Le fichier " + file.leafName + " a été selectionné et pèse " + file.fileSize + "\n");
+      const MULTI = "@mozilla.org/io/multiplex-input-stream;1";
+      const FINPUT = "@mozilla.org/network/file-input-stream;1";
+      const STRINGIS = "@mozilla.org/io/string-input-stream;1";
+      const BUFFERED = "@mozilla.org/network/buffered-input-stream;1";
+      const nsIMultiplexInputStream = Components.interfaces.nsIMultiplexInputStream;
+      const nsIFileInputStream = Components.interfaces.nsIFileInputStream;
+      const nsIStringInputStream = Components.interfaces.nsIStringInputStream;
+      const nsIBufferedInputStream = Components.interfaces.nsIBufferedInputStream;
+      var mis = Components.classes[MULTI].createInstance(nsIMultiplexInputStream);
+      var fin = Components.classes[FINPUT].createInstance(nsIFileInputStream);
+      fin.init(file, 1, 292, null);
+      var buf = Components.classes[BUFFERED].createInstance(nsIBufferedInputStream);
+      buf.init(fin, (file.fileSize - 1));
+      mis.appendStream(buf);
+      debug(buf);
+      var mimetype = gdMime.getMIMEType(file);
+      mr = this.setupRequest(this._host + this.listURL, {alt: "json"}, "POST", true, success,error, {"Content-Type": gdMime.getMIMEType(file),"Content-Length":mis.available()-2,"Slug":file.leafName });
+      mr.send(mis);
     }
 });
 
@@ -432,7 +520,9 @@ gAtomFeed.updateTitle = function(title, etag, starred){
     </atom:entry>;
     
     var myxmlStr = myxml.toXMLString();
-    //debug(myxmlStr);
+    xmlString = parent.toXMLString();
+    return xmlString;
+    debug(myxmlStr);
     return this.addXMLHeader(myxmlStr);
 }*/
 gAtomFeed.unstar = function(title, etag){
@@ -469,11 +559,29 @@ gAtomFeed.type = function(type){
     var myxml = <atom:category xmlns:atom="http://www.w3.org/2005/Atom" scheme="http://schemas.google.com/g/2005#kind" term={term} label={type}/>;
     return myxml;
 }
+
+gAtomFeed.id = function(id){
+    default xml namespace="http://www.w3.org/2005/Atom";
+    var myxml = <atom:id  xmlns:atom="http://www.w3.org/2005/Atom">{id}</atom:id>;
+    return myxml;
+}
 gAtomFeed.parent = function(etag){
     default xml namespace="http://www.w3.org/2005/Atom";
     var myxml = <atom:entry xmlns:atom="http://www.w3.org/2005/Atom" gd:etag={etag}  xmlns:gd="http://schemas.google.com/docs/2007">
     </atom:entry>;
     return myxml;
+}
+
+gAtomFeed.getMoveXML = function(gdEntryEl) {
+    default xml namespace="http://www.w3.org/2005/Atom";
+    var parent = <atom:entry xmlns:atom="http://www.w3.org/2005/Atom"  xmlns:gd="http://schemas.google.com/docs/2007"></atom:entry>;
+    debug("id is " + gdEntryEl.getAttribute('edit'));
+    var id = this.id(gdEntryEl.getAttribute('edit'));
+    parent.appendChild(id);
+    var type = this.type(gdEntryEl.getAttribute('edit'));
+    parent.appendChild(type);
+    xmlString = parent.toXMLString();
+    return xmlString;
 }
 
 gAtomFeed.getUpdateXML = function(gdEntryEl, overwrite){
@@ -494,7 +602,6 @@ gAtomFeed.getUpdateXML = function(gdEntryEl, overwrite){
     var type = this.type(gdEntryEl.getAttribute('type'));
     parent.appendChild(type);
     xmlString = parent.toXMLString();
-    //debug(xmlString);
     return xmlString;
 }
 

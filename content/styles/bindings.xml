@@ -188,6 +188,14 @@
 				]]>
 			</body>
 		</method>
+		<method name="move">
+			<parameter name="folder" />
+			<body>
+        <![CDATA[
+          gdListAPI.move(this, folder);
+				]]>
+			</body>
+		</method>
 	</implementation>
 </binding>	
 
