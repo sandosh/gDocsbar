@@ -95,6 +95,7 @@ gdocument label.date{
 
 
 
+
 gicon{
     -moz-binding:url(chrome://gdocsbar/content/styles/bindings.xml#gicon);
     padding:8px;
@@ -102,6 +103,23 @@ gicon{
     cursor:pointer;
     background-position: 16px center;
 }
+
+gicon.loading{
+    background-image:url(chrome://gdocsbar/content/images/loading-777.gif);
+    background-repeat:no-repeat;
+    background-position:center center;
+}
+gicon.success{
+    background-image:url(chrome://gdocsbar/content/images/icon/icon_success.png);
+    background-repeat:no-repeat;
+    background-position:center center;
+}
+gicon.error{
+    background-image:url(chrome://gdocsbar/content/images/icon/icon_error.png);
+    background-repeat:no-repeat;
+    background-position:center center;
+}
+
 gicon.all{
     background-position: -128px center;
 }
@@ -284,5 +302,30 @@ gdfoldertreeitem{
 
 foldertree{
     -moz-binding: url(chrome://gdocsbar/content/styles/bindings.xml#treeEditable);
+    -moz-box-orient:vertical;
+}
+
+gdupdocument{
+    -moz-binding: url(chrome://gdocsbar/content/styles/bindings.xml#gdupdocument);
+    -moz-box-orient:vertical;
+    padding:5px 10px;
+    background-color:white;
+    border-bottom:1px solid #eee;
+}
+gdupdocument[status=uploading] .success, gdupdocument[status=uploading] .error, gdupdocument[status=success] .uploading, gdupdocument[status=error] .uploading,
+gdupdocument[status=success] .error, gdupdocument[status=error] .success
+{
+    display:none;
+}
+
+
+
+gdupdocument[status=success]{
+    background-color:#fff6a8;
+    border-bottom:1px solid #ccc;
+    border-top:1px solid #FFF;
+}
+extendedrichlistbox{
+    -moz-binding: url(chrome://gdocsbar/content/styles/bindings.xml#extendedrichlistbox);
     -moz-box-orient:vertical;
 }

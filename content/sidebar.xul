@@ -8,7 +8,7 @@
 	windowtype="SideBar" 
 	persist="screenX screenY width height sizemode"
     screenX="10" screenY="10"
-    id="sbGdocsbar" width="250">
+    id="sbGdocsbar" width="250" ondragdrop="nsDragAndDrop.drop(event, panelDragDropObserver)" ondragover="nsDragAndDrop.dragOver(event,panelDragDropObserver)" ondragexit="nsDragAndDrop.dragExit(event,panelDragDropObserver)" ondragenter="nsDragAndDrop.dragEnter(event,panelDragDropObserver)">
   <script type="application/x-javascript" src="chrome://global/content/nsDragAndDrop.js" />
   <script type="application/x-javascript" src="chrome://global/content/nsTransferable.js" />
   <script type="application/x-javascript" src="chrome://gdocsbar/content/lib/misc.js" />
@@ -92,7 +92,7 @@
 			</vbox>
 		</panel>
 	</popupset>
-<page id="gDocsList" title="List" flex="1">
+<page id="gDocsList" title="List" flex="1" collapsed="true">
 	<hbox class="title">
 		<menulist id="feedtype">
 		  <menupopup id="menupopup" oncommand="gbar.getFullDocList();">
@@ -128,10 +128,13 @@
 	</hbox>
 	<vbox id="gDocsList_folders" maxheight="200" style="overflow:auto;">
 	</vbox>
-  <vbox id="uploadDrop" style="height:100px; overflow-x:hidden;" ondragdrop="nsDragAndDrop.drop(event, panelDragDropObserver)" ondragover="nsDragAndDrop.dragOver(event,panelDragDropObserver)" ondragexit="nsDragAndDrop.dragExit(event,panelDragDropObserver)" ondragenter="nsDragAndDrop.dragEnter(event,panelDragDropObserver)">
-        <label value="Drag and Drop files to upload." style="font-weight:; font-size:13px;"/>
-        <progressmeter id="uploadProgress" mode="determined" value="50" style="display:none;"/>
-  </vbox>
+</page>
+<page id="gDocsUploadpage" title="Upload" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" flex="1" collapsed="true">
+	<hbox>
+		<button label="view documents" oncommand="gbar.$('gDocsList').setAttribute('collapsed', false);gbar.$('gDocsUploadpage').setAttribute('collapsed', true);"/>
+	</hbox>
+	<extendedrichlistbox flex="1" id="gdUploadQueueBox">
+	</extendedrichlistbox>
 </page>
 <page id="gDocsBarLogin" title="hello"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" style="background-color:white;">

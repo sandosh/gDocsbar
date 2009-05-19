@@ -99,9 +99,10 @@ gdFeed = Base.extend({
 var gdMime = new Base;
 gdMime.extend({
   getMIMEService: function() {
-      const mimeSvcContractID = "@mozilla.org/mime;1";
-      const mimeSvcIID = Components.interfaces.nsIMIMEService;
-      const mimeSvc = Components.classes[mimeSvcContractID].getService(mimeSvcIID);
+      // constants should be initialized only once.
+       mimeSvcContractID = "@mozilla.org/mime;1";
+       mimeSvcIID = Components.interfaces.nsIMIMEService;
+       mimeSvc = Components.classes[mimeSvcContractID].getService(mimeSvcIID);
       return mimeSvc;
   },
   getMIMETypeForURI: function(aURI, name) {
@@ -148,9 +149,12 @@ gdMime.extend({
         return "text/tab-separated-values";
       case "tab":
         return "text/tab-separated-values";
+      case "png":
+        return "image/png";
       case "html":
       case "htm":
         return "text/html";
+        
       }
   },
   getMIMEType: function(file) {

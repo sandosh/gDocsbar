@@ -8,13 +8,14 @@ var panelDragDropObserver =
 		evt.preventDefault(); 
 		debug('ondrop...');
 		gbar.getDropFiles(session);
-		document.getElementById('uploadDrop').style.backgroundColor = "#93C2F1";
+		//document.getElementById('uploadDrop').style.backgroundColor = "#93C2F1";
 	},
 	onDragOver : function (evt, transferData, session) {
-		document.getElementById('uploadDrop').style.backgroundColor = "#FAE298";
+		//document.getElementById('uploadDrop').style.backgroundColor = "#FAE298";
 		evt.preventDefault(); 
 		//debug('ondragover...');
-		
+		gbar.$("gDocsList").setAttribute('collapsed', true);
+		gbar.$("gDocsUploadpage").setAttribute('collapsed', false);
 	},
 	ondragenter : function (evt, transferData, session) {
 		evt.preventDefault(); 
@@ -23,13 +24,15 @@ var panelDragDropObserver =
 	onDragExit : function (evt, transferData, session) {
 		evt.preventDefault(); 
 		debug('onDragExit...');
-		document.getElementById('uploadDrop').style.backgroundColor = "#93C2F1";
+		//gbar.$("gDocsList").setAttribute('collapsed', false);
+		//gbar.$("gDocsUploadpage").setAttribute('collapsed', true);
+		//document.getElementById('uploadDrop').style.backgroundColor = "#93C2F1";
 	},
 	getSupportedFlavours: function () {
     var flavourSet = new FlavourSet();
     flavourSet.appendFlavour("text/x-moz-url");
-    //flavourSet.appendFlavour("text/unicode");
-    //flavourSet.appendFlavour("application/x-moz-file", "nsIFile");
+    flavourSet.appendFlavour("text/unicode");
+    flavourSet.appendFlavour("application/x-moz-file", "nsIFile");
     return flavourSet;
   }
 }
@@ -54,6 +57,7 @@ gbar = GDOCSBARUtils.extend({
             gdBrowser.init();
             folderHistory = new Array();
             foldertree = this.$("foldertree");
+            gdUploadQueueBox = this.$("gdUploadQueueBox");
         }).bind(this)();
         
         
@@ -485,9 +489,27 @@ gbar = GDOCSBARUtils.extend({
           }
           debug("filename: " + fileObj.leafName);
           this._uploadQ.push({"file": fileObj, "_type": "file", "name": fileObj.leafName});
+          var gdupdocument = document.createElement("gdupdocument");
+          gdupdocument.setAttribute('title', fileObj.leafName);
+          gdupdocument.setAttribute('status', "uploading");
+          
+          if(gdlistholder.getAttribute('folder')){
+              folder = gdlistholder.getAttribute('folder');
+              gdupdocument.setAttribute('folder', folder);
+          }
+          
+          
+          
+          if(gdUploadQueueBox.childNodes.length == 0)
+            gdUploadQueueBox.appendChild(gdupdocument);
+          else
+            gdUploadQueueBox.insertBefore(gdupdocument, gdUploadQueueBox.firstChild);
+          
+          gdupdocument.setFile(fileObj);
+          gdupdocument.upload();
         } 
       }
-      this.processQ();
+      //this.processQ();
     },
     processQ: function() {
       if (this._uploadQ.length > 0) {
@@ -514,6 +536,7 @@ gbar = GDOCSBARUtils.extend({
     },
     uploadError: function(data,error) {
       debug("upload failed");
+      debug(data, error);
     }
 });
 

@@ -57,18 +57,160 @@
  </implementation>
 </binding>
 
+<binding id="extendedrichlistbox" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
+	<content>
+		<xul:vbox flex="1">
+		      <children includes="listheader"/>
+		      <xul:scrollbox allowevents="true" orient="vertical" anonid="main-box" flex="1" style="overflow: auto;">
+		        <children/>
+		      </xul:scrollbox>
+		</xul:vbox>
+	  </content>
+</binding>
+
+<binding id="gdupdocument" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+	<content>
+		<xul:hbox flex="1" style="padding:5px 0;">
+			<xul:label xbl:inherits="value=title" style="font-size:10pt; margin:0;" maxwidth="150" crop="center" /><xul:spacer flex="1" /><xul:gicon class="success" /><xul:gicon class="error" />
+		</xul:hbox>
+		<xul:hbox style="padding:5px 0;" class="uploading">
+			<xul:progressmeter id="identifier" mode="determined" value="0" flex="1" anonid="progressbar"/><xul:gicon class="loading" />
+		</xul:hbox>
+		<xul:description class="error" xbl:inherits="xbl:text=errortxt" style="color:red;"></xul:description>
+	</content>
+	<implementation>
+		<constructor>
+			<![CDATA[
+				this.progressbar = document.getAnonymousElementByAttribute(this, "anonid", "progressbar");
+			]]>
+		</constructor>
+		<method name="setFile">
+			<parameter name="fileObj" />
+			<body>
+				<![CDATA[
+					this.file = fileObj;
+				]]>
+			</body>
+		</method>
+		<method name="upload">
+			<body>
+				<![CDATA[
+					file = this.file;
+					  var ios = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+				      var fileURI = ios.newFileURI(file);
+
+				      const MULTI = "@mozilla.org/io/multiplex-input-stream;1";
+				      const FINPUT = "@mozilla.org/network/file-input-stream;1";
+				      const STRINGIS = "@mozilla.org/io/string-input-stream;1";
+				      const BUFFERED = "@mozilla.org/network/buffered-input-stream;1";
+				      const nsIMultiplexInputStream = Components.interfaces.nsIMultiplexInputStream;
+				      const nsIFileInputStream = Components.interfaces.nsIFileInputStream;
+				      const nsIStringInputStream = Components.interfaces.nsIStringInputStream;
+				      const nsIBufferedInputStream = Components.interfaces.nsIBufferedInputStream;
+
+				      mis = Components.classes[MULTI].createInstance(nsIMultiplexInputStream);
+				      var fin = Components.classes[FINPUT].createInstance(nsIFileInputStream);
+				      fin.init(file, 1, 292, null);
+
+				      var buf = Components.classes[BUFFERED].createInstance(nsIBufferedInputStream);
+				      buf.init(fin, (file.fileSize - 1));
+				      mis.appendStream(buf);
+				      debug(buf);
+				      var mimetype = gdMime.getMIMEType(file);
+				
+					  if(this.hasAttribute('folder')){
+							folder = this.getAttribute('folder');
+							url = gdListAPI._host + gdListAPI.folderURL + folder;
+					   }
+					else
+						url = gdListAPI._host + gdListAPI.listURL;
+						
+				      mr = gdListAPI.setupRequest(url, {alt: "json"}, "POST", true, this.uploadSuccess.bind(this),this.uploadFail.bind(this), {"Content-Type": gdMime.getMIMEType(file),"Content-Length":mis.available()-2,"Slug":file.leafName });
+				      
+					  debug("starting with...."+ mis.available());
+					 this.mis = mis;
+					 
+					 this.totalBytes = mis.available();
+					
+					 this.interval = setInterval((function(){
+							this.updateProgress()
+					 }).bind(this), 500);
+					
+					mr.send(mis);
+				]]>
+			</body>
+		</method>
+		<method name="uploadSuccess">
+			<parameter name="data" />
+			<body>
+				<![CDATA[
+					debug("upload success"); 
+					clearInterval(this.interval);
+					this.setAttribute('status','success');
+					
+					gdlistholder = document.getElementById("gdlistholder");
+					
+					if((this.getAttribute('folder') && gdlistholder.getAttribute('folder')) || (!this.hasAttribute('folder') && !gdlistholder.hasAttribute('folder'))){
+						
+						
+						feedtype = gbar.$("feedtype");
+			            showtypes = gbar.$("showtypes");
+						
+						if(showtypes.value){
+							showtype = showtypes.value;
+							if(entry.type != showtype)
+								return;
+						}
+						if(feedtype.value){
+							feedtype = feedtype.value
+							if(!entry[feedtype])
+								return false;
+						}
+						
+						entry = new gdEntry(data.entry);
+						newel = gbar.makegdocument(entry);
+						gdlistholder.insertBefore(newel, gdlistholder.firstChild);
+						//gdlistholder.removeChild(gdlistholder.lastChild);
+					}
+					
+					
+				]]>
+			</body>
+		</method>
+		<method name="uploadFail">
+			<parameter name="code" />
+			<parameter name="error" />
+			<body>
+				<![CDATA[
+					clearInterval(this.interval);
+					this.setAttribute('status','error');
+					this.setAttribute('errortxt',error);
+				]]>
+			</body>
+		</method>
+		<method name="updateProgress">
+			<body>
+				<![CDATA[
+					var uploaded = this.totalBytes - this.mis.available();
+					p = parseInt( uploaded * 100 / this.totalBytes );
+					this.progressbar.value = (p == 100 ? 97 : p);
+				]]>
+			</body>
+		</method>
+	</implementation>
+</binding>
 
 <binding id="document" extends="xul:vbox">
 	<content>
 		<xul:hbox style="overflow-x:hidden;" mode="displayandedit">
-			<xul:description xbl:inherits="xbl:text=name" class="name"/>
+			<xul:description xbl:inherits="xbl:text=name, tooltiptext=name" class="name"/>
 		</xul:hbox>
 		<html:div mode="display" class="folders" anonid="folders" collapsed="true">
 		</html:div>
-		<xul:vbox flex="1" style="padding-left:25px;" mode="display">
-			<xul:label crop="end" xbl:inherits="value=author, tooltiptext=author" class="date" style="margin-left:0;"/>
+		<xul:vbox flex="1" mode="display">
+			<xul:label crop="end" xbl:inherits="value=author, tooltiptext=author" class="date" style="margin-left:25px;"/>
 			<xul:hbox align="center" style="margin-top:5px;" mode="display" flex="1">
-				<xul:gicon xbl:inherits="class=star" onclick="star();"/><xul:label xbl:inherits="value=datetime" class="date" /><xul:spacer flex="1" /><xul:gicon class="options" popup="gdocumentmenu" tooltiptext="Actions"/><xul:gicon class="more" tooltiptext="More information"/>
+				<xul:checkbox /><xul:gicon xbl:inherits="class=star" onclick="star();"/><xul:label xbl:inherits="value=datetime" class="date" /><xul:spacer flex="1" /><xul:gicon class="options" popup="gdocumentmenu" xbl:inherits="resource" tooltiptext="Actions"/><xul:gicon class="more" tooltiptext="More information"/>
 			</xul:hbox>
 		</xul:vbox>
 		<xul:vbox mode="edit" style="margin-left:0px;">
