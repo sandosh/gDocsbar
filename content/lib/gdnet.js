@@ -381,13 +381,24 @@ gdListAPI.extend({
         mr.send(outStr);
     },
     star: function(gdEntryEl) {
-        //debug("in star 2");
+        debug("in star 2");
         editLink = gdEntryEl.getAttribute('edit');
         etag = gdEntryEl.getAttribute('etag');
         outStr = gAtomFeed.getUpdateXML(gdEntryEl, 'star'); //star(gdEntryEl.getAttribute('name'), etag);
         mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true, gdEntryEl.nameSaved.bind(gdEntryEl), gdEntryEl.nameSavedError.bind(gdEntryEl)  , {"Content-Type": "application/atom+xml", "If-Match": etag});
         mr.send(outStr);
         debug(outStr);
+    },
+    refreshEntry: function(gdEntryEl) {
+        debug("in refresh entry");
+        editLink = gdEntryEl.getAttribute('edit');
+        etag = gdEntryEl.getAttribute('etag');
+        mr = this.setupRequest(editLink, {alt: "json"}, "GET", true, gdEntryEl.refreshEntrySuccess.bind(gdEntryEl), gdEntryEl.refreshEntryError.bind(gdEntryEl)  , {"Content-Type": "application/atom+xml"});
+        var callback = {notify: function () { mr.send('') } };
+        var timer = Components.classes["@mozilla.org/timer;1"]
+                  .createInstance(Components.interfaces.nsITimer);
+        timer.initWithCallback(callback, 2000,Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+
     },
     unstar: function(gdEntryEl){
         editLink = gdEntryEl.getAttribute('edit');
