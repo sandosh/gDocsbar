@@ -219,7 +219,7 @@
 		</html:div>
 		<xul:vbox flex="1" mode="display" nonfolder="true">
 			<xul:hbox align="center" style="margin-top:0px;padding:0;" mode="display" flex="1">
-				<xul:gicon xbl:inherits="class=star" onclick="star();" collapsed="true"/><xul:label xbl:inherits="value=datetime" class="date" /><xul:label crop="end" xbl:inherits="value=author, tooltiptext=author" class="date"/><xul:gicon class="options" popup="gdocumentmenu" xbl:inherits="resource" tooltiptext="Actions" collapsed="true"/><xul:gicon class="more" tooltiptext="More information" collapsed="true"/><xul:spacer flex="1" /><xul:checkbox oncommand="checkMe(this.checked);"/>
+				<xul:gicon xbl:inherits="class=star" onclick="star();" collapsed="true"/><xul:label xbl:inherits="value=datetime" class="date" /><xul:label crop="end" xbl:inherits="value=author, tooltiptext=author" class="date"/><xul:gicon class="options" popup="gdocumentmenu" xbl:inherits="resource" tooltiptext="Actions" collapsed="true"/><xul:gicon class="more" tooltiptext="More information" collapsed="true"/><xul:spacer flex="1" /><xul:checkbox oncommand="checkMe(this.checked);" anonid="checkbox"/>
 			</xul:hbox>
 		</xul:vbox>
 		<xul:vbox mode="edit" style="margin-left:0px;">
@@ -230,8 +230,17 @@
 		</xul:vbox>
 	</content>
 	<implementation>
+		<property name="checked">
+			<setter>
+				<![CDATA[
+				
+					this.checkbox.checked = val;
+				]]>
+			</setter>
+		</property>
 		<constructor>
 			<![CDATA[
+			this.checkbox = document.getAnonymousElementByAttribute(this, "anonid", "checkbox");
 			
 			if(this.getAttribute('new')){
 				document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").select();
@@ -494,7 +503,7 @@
 
 <binding id="gdlistholder" extends="xul:vbox">
 	<content>
-		<xul:hbox style="background-color:#EFEFEF;font-size:7pt;" class="listdetail"><xul:hbox class="nonemptytext"><xul:label value="1"/><xul:label value="-" /><xul:label xbl:inherits="value=numshowing" /><xul:label value="of" /><xul:label xbl:inherits="value=total" /></xul:hbox><xul:label value="0 Files found" class="emptytext"></xul:label><xul:spacer flex="1" /><xul:gicon class="refresh" onclick="gbar.refreshDocumentFeed();" collapsed="true"/><xul:label class="text-link" onclick="gbar.refreshDocumentFeed();" value="Refresh" /><xul:label class="text-link" value="Download" /></xul:hbox>
+		<xul:hbox style="background-color:#EFEFEF;font-size:7pt; padding:5px 7px;" class="listdetail"><xul:hbox class="nonemptytext"><xul:label value="1"/><xul:label value="-" /><xul:label xbl:inherits="value=numshowing" /><xul:label value="of" /><xul:label xbl:inherits="value=total" /></xul:hbox><xul:label value="0 Files found" class="emptytext"></xul:label><xul:spacer flex="1" /><xul:gicon class="refresh" onclick="gbar.refreshDocumentFeed();"/><xul:label class="text-link" value="Download" onclick="gbar.downloadMultiple();" /><xul:checkbox style="margin:0;" oncommand="selectAll(this.checked);"/></xul:hbox>
 		<xul:vbox flex="1" style="overflow:auto;">
 			<xul:vbox anonid="childrenholder">
 				<children />
@@ -503,6 +512,19 @@
 		</xul:vbox>
 	</content>
 	<implementation>
+		<method name="selectAll">
+			<parameter name="checked" />
+			<body>
+				<![CDATA[
+				
+				for(var i=0; i<this.childNodes.length; i++){
+					this.childNodes[i].setAttribute('checked', checked); 
+					this.childNodes[i].checked = checked;
+				}
+				
+				]]>
+			</body>
+		</method>
 		<method name="clearContents">
 			<body>
 				<![CDATA[
