@@ -489,7 +489,7 @@ gdListAPI.extend({
         wbp.progressListener = dl;
 
         wbp.persistFlags &= ~Components.interfaces.nsIWebBrowserPersist.PERSIST_FLAGS_NO_CONVERSION; 
-        wbp.saveURI(uri,null,null,null,null,file);
+        wbp.saveURI(uri,null,null,null,"Authorization:GoogleLogin auth=" + this._auth +"\r\n",file);
     },
     getFolders: function(){
         this.resetOptions();
