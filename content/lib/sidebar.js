@@ -372,11 +372,17 @@ gbar = GDOCSBARUtils.extend({
 //        debug(_gdFeed.total);
         entries = _gdFeed.entries;
 //        debug("hello");
-
+        q = this.getQueryParams();
+        debug(q.types);
         for(var i=0; i<entries.length; i++){
             var entry = this.makegdocument(entries[i]);
             //gDocsList_list.insertBefore(entry, moreloader);
-            gdlistholder.appendChild(entry);
+            if(q.types.showtype && q.types['folder'] || q.types.showtype && q.types.feedtype && !q.types['folder']) { 
+              if(entries[i]._type == q.types.showtype)
+                gdlistholder.appendChild(entry);
+            } else {
+                gdlistholder.appendChild(entry);
+            }
         }
 
         debug(_gdFeed.etag);

@@ -247,7 +247,6 @@ gdListAPI = new Base;
 gdListAPI.extend({
     _host: "http://docs.google.com",
     listURL: "/feeds/documents/private/full",
-//    folderURL: "http://docs.google.com/feeds/folders/private/full/folder%3A845870d8-2b02-4382-aa55-730e71dcb648/-/folder?showfolders=true",
     folderURL: "/feeds/folders/private/full/folder%3A",
     documentExport: "http://docs.google.com/feeds/download/documents/Export",
     presentationExport: "http://docs.google.com/feeds/download/presentations/Export",
@@ -326,13 +325,13 @@ gdListAPI.extend({
         else
             url = this.listURL;
         
-        if(types.showtype && types.feedtype){
+        if(types.showtype && types.feedtype && !types['folder']){
             url += "/-/" + types.showtype + "/" + types.feedtype;
         }
         else if(types.feedtype){
             url +=  "/-/" + types.feedtype;
         }
-        else if(types.showtype){
+        else if(types.showtype && !types['folder']){
             url +=  "/-/" + types.showtype;
         }
         //debug(url);
