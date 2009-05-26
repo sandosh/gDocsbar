@@ -494,7 +494,7 @@
 
 <binding id="gdlistholder" extends="xul:vbox">
 	<content>
-		<xul:hbox style="background-color:#EFEFEF;font-size:7pt;" class="listdetail"><xul:hbox class="nonemptytext"><xul:label value="1"/><xul:label value="-" /><xul:label xbl:inherits="value=numshowing" /><xul:label value="of" /><xul:label xbl:inherits="value=total" /></xul:hbox><xul:label value="0 Files found" class="emptytext"></xul:label><xul:spacer flex="1" /><xul:gicon class="refresh" onclick="gbar.refreshDocumentFeed();" collapsed="true"/><xul:label class="text-link" onclick="gbar.refreshDocumentFeed();" value="Refresh" /><xul:label class="text-link" value="Download" /></xul:hbox>
+		<xul:hbox style="background-color:#EFEFEF;font-size:7pt;" class="listdetail"><xul:hbox class="nonemptytext"><xul:label value="1"/><xul:label value="-" /><xul:label xbl:inherits="value=numshowing" /><xul:label value="of" /><xul:label xbl:inherits="value=total" /></xul:hbox><xul:label value="0 Files found" class="emptytext"></xul:label><xul:spacer flex="1" /><xul:gicon class="refresh" onclick="gbar.refreshDocumentFeed();" collapsed="true"/><xul:label class="text-link" onclick="gbar.refreshDocumentFeed();" value="Refresh" /><xul:label class="text-link" value="Download" onclick="gbar.downloadMultiple();" /></xul:hbox>
 		<xul:vbox flex="1" style="overflow:auto;">
 			<xul:vbox anonid="childrenholder">
 				<children />

@@ -291,6 +291,36 @@ gbar = GDOCSBARUtils.extend({
         out.query = a;
         return out;
     },
+    downloadMultiple: function() {
+      debug("in downloadmultiple")
+      debug(gdlistholder)
+      oElm = gdlistholder
+      strTagName = "gdocument"
+      strAttributeName = "checked"
+      strAttributeValue = "true"
+      var arrElements = (strTagName == "*" && oElm.all)? oElm.all : oElm.getElementsByTagName(strTagName);
+      var arrReturnElements = new Array();
+      var oAttributeValue = (typeof strAttributeValue != "undefined")? new RegExp("(^|\\s)" + strAttributeValue + "(\\s|$)", "i") : null;
+      var oCurrent;
+      var oAttribute;
+      for(var i=0; i<arrElements.length; i++){
+          oCurrent = arrElements[i];
+          oAttribute = oCurrent.getAttribute && oCurrent.getAttribute(strAttributeName);
+          if(typeof oAttribute == "string" && oAttribute.length > 0){
+              if(typeof strAttributeValue == "undefined" || (oAttributeValue && oAttributeValue.test(oAttribute))){
+                  arrReturnElements.push(oCurrent);
+              }
+          }
+      }
+      debug(arrReturnElements.length);
+      format_table = {"document" : "doc", "spreadsheet" : "xls", "presentation" : "ppt"} 
+      for(var i=0; i<arrReturnElements.length; i++){
+        resource = arrReturnElements[i].getAttribute("resource")
+        debug(resource)
+        format = format_table[resource] ? format_table[resource] : "pdf"
+        gdListAPI.download(arrReturnElements[i],format) 
+      }
+    },
     getMoreDocuments: function(){
         this.addClass(gdlistholder, "loading");
         q = this.getQueryParams();

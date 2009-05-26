@@ -240,6 +240,9 @@ gdBrowser.extend({
     //debug("in preview");
     url = this._host + "/View?revision=_latest&docid=" + gdEntryEl.getAttribute('resourceId');
     this._gBrowser.selectedTab = this._gBrowser.addTab(url);
+  },
+  openURL: function(url) {
+    this._gBrowser.addTab(url)
   }
 });
 
@@ -461,9 +464,10 @@ gdListAPI.extend({
         //save file to target
 */
         //wbp.saveURI(uri,null,null,null,null,file);
-        wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-        var recentWindow = wm.getMostRecentWindow("navigator:browser");
-        recentWindow.openUILink(url, null, false, true);
+        //wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+        //var recentWindow = wm.getMostRecentWindow("navigator:browser");
+        //recentWindow.openUILink(url, null, false, true);
+        gdBrowser.openURL(url)
     },
     getFolders: function(){
         this.resetOptions();
