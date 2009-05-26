@@ -71,7 +71,7 @@
 <binding id="gdupdocument" extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
 	<content>
 		<xul:hbox flex="1" style="padding:5px 0;">
-			<xul:label xbl:inherits="value=title" style="font-size:10pt; margin:0;" maxwidth="150" crop="center" /><xul:spacer flex="1" /><xul:gicon class="success" /><xul:gicon class="error" />
+			<xul:label xbl:inherits="value=title" style="font-size:9pt; margin:0;" maxwidth="150" crop="center" /><xul:spacer flex="1" /><xul:gicon class="success" /><xul:gicon class="error" /><xul:label value="0%" anonid="percentage_text"/>
 		</xul:hbox>
 		<xul:hbox style="padding:5px 0;" class="uploading">
 			<xul:progressmeter id="identifier" mode="determined" value="0" flex="1" anonid="progressbar"/><xul:gicon class="loading" />
@@ -82,6 +82,7 @@
 		<constructor>
 			<![CDATA[
 				this.progressbar = document.getAnonymousElementByAttribute(this, "anonid", "progressbar");
+				this.percentage_text = document.getAnonymousElementByAttribute(this, "anonid", "percentage_text");
 			]]>
 		</constructor>
 		<method name="setFile">
@@ -173,7 +174,7 @@
 						//gdlistholder.removeChild(gdlistholder.lastChild);
 					}
 					
-					
+					this.percentage_text.setAttribute('collapsed', true);
 				]]>
 			</body>
 		</method>
@@ -185,6 +186,7 @@
 					clearInterval(this.interval);
 					this.setAttribute('status','error');
 					this.setAttribute('errortxt',error);
+					this.percentage_text.setAttribute('collapsed', true);
 				]]>
 			</body>
 		</method>
@@ -193,7 +195,8 @@
 				<![CDATA[
 					var uploaded = this.totalBytes - this.mis.available();
 					p = parseInt( uploaded * 100 / this.totalBytes );
-					this.progressbar.value = (p == 100 ? 97 : p);
+					this.progressbar.value = (p == 100 ? 99 : p);
+					this.percentage_text.value = this.progressbar.value + "%";
 				]]>
 			</body>
 		</method>
@@ -203,18 +206,17 @@
 <binding id="document" extends="xul:vbox">
 	<content>
 		<xul:hbox style="overflow-x:hidden;" mode="displayandedit">
-			<xul:description xbl:inherits="xbl:text=name, tooltiptext=name" class="name"/>
+			<xul:gicon xbl:inherits="class=star" onclick="star();"/><xul:description xbl:inherits="xbl:text=name, tooltiptext=name" class="name" onclick="takeAction(event);"/>
 		</xul:hbox>
-		<html:div mode="display" class="folders" anonid="folders" collapsed="true">
+		<html:div mode="display" class="folders" anonid="folders" style="display:none;" nonfolder="true">
 		</html:div>
-		<xul:vbox flex="1" mode="display">
-			<xul:label crop="end" xbl:inherits="value=author, tooltiptext=author" class="date" style="margin-left:25px;"/>
+		<xul:vbox flex="1" mode="display" nonfolder="true">
 			<xul:hbox align="center" style="margin-top:5px;" mode="display" flex="1">
-				<xul:checkbox /><xul:gicon xbl:inherits="class=star" onclick="star();"/><xul:label xbl:inherits="value=datetime" class="date" /><xul:spacer flex="1" /><xul:gicon class="options" popup="gdocumentmenu" xbl:inherits="resource" tooltiptext="Actions"/><xul:gicon class="more" tooltiptext="More information"/>
+				<xul:gicon xbl:inherits="class=star" onclick="star();" collapsed="true"/><xul:label xbl:inherits="value=datetime" class="date" /><xul:label crop="end" xbl:inherits="value=author, tooltiptext=author" class="date"/><xul:gicon class="options" popup="gdocumentmenu" xbl:inherits="resource" tooltiptext="Actions" collapsed="true"/><xul:gicon class="more" tooltiptext="More information" collapsed="true"/><xul:spacer flex="1" /><xul:checkbox oncommand="checkMe(this.checked);"/>
 			</xul:hbox>
 		</xul:vbox>
 		<xul:vbox mode="edit" style="margin-left:0px;">
-			<xul:textbox xbl:inherits="value=name" anonid="name_textbox"/>
+			<xul:textbox xbl:inherits="value=name" anonid="name_textbox" onkeydown="if(event.keyCode === 13){ saveName(); }"/>
 			<xul:hbox align="center">
 				<xul:button label="save" oncommand="saveName();"/><xul:label class="text-link" value="cancel" onclick="cancelRename();" />
 			</xul:hbox>
@@ -223,9 +225,45 @@
 	<implementation>
 		<constructor>
 			<![CDATA[
-				
+			
+			if(this.getAttribute('new')){
+				document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").select();
+			}
+			if(this.getAttribute('folders')){
+			folders = JSON.fromString( this.getAttribute('folders') );
+			
+			if(folders.length > 0){
+				this.foldersHolder = document.getAnonymousElementByAttribute(this, "anonid", "folders");
+				for(var i=0; i < folders.length; i++){
+					var label = document.createElement("label");
+					label.setAttribute('value', folders[i]);
+					debug(folders[i]);
+					this.foldersHolder.appendChild(label);
+				}
+				this.foldersHolder.setAttribute('style', "display:;");
+			}
+			}
+			
 			]]>
 		</constructor>
+		<method name="takeAction">
+			<parameter name="event" />
+			<body>
+				<![CDATA[
+					gbar.takeAction(this, event);
+				]]>
+			</body>
+		</method>
+		<method name="checkMe">
+			<parameter name="checked" />
+			<body>
+				<![CDATA[
+				debug(checked);
+					this.setAttribute('checked', checked);
+					return true;
+				]]>
+			</body>
+		</method>
 		<method name="rename">
 			<body>
 				<![CDATA[
@@ -239,6 +277,10 @@
 		<method name="cancelRename">
 			<body>
 				<![CDATA[
+				if(this.getAttribute('new') == "true"){
+					this.parentNode.removeChild(this);
+				}
+				else
 					gbar.removeClass(this, "edit");
 				]]>
 			</body>
@@ -247,8 +289,16 @@
 			<body>
 				<![CDATA[
           			gbar.addClass(this, "loading");
-					this.newTitle = document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").value;
-          			gdListAPI.rename(this,document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").value);
+					
+					if(this.getAttribute('new') == "true"){
+						this.newTitle = document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").value;
+						gdListAPI.newDocument(this, this.newTitle, this.getAttribute('type'));
+					}
+					else{
+						this.newTitle = document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").value;
+          				gdListAPI.rename(this,document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").value);
+					}
+					
 				]]>
 			</body>
 		</method>
@@ -268,6 +318,19 @@
 						gbar.removeClass(this, "loading");
 						debug(data);
 						entry = new gdEntry(data.entry);
+						if(this.getAttribute('type') == "folder")
+						{
+							if(this['newTitle'])
+							{
+								entry.title = this.newTitle;
+							}
+							else{
+								
+								gbar.getFolderList();
+								return;
+							}
+						}
+							
 						newel = gbar.makegdocument(entry);
 						this.parentNode.replaceChild(newel, this);
 					}
@@ -333,8 +396,9 @@
 		<method name="move">
 			<parameter name="folder" />
 			<body>
-        <![CDATA[
-          gdListAPI.move(this, folder);
+        		<![CDATA[
+					gbar.addClass(this, "loading");
+          			gdListAPI.move(this, folder);
 				]]>
 			</body>
 		</method>
@@ -345,8 +409,65 @@
 
 <binding id="gfolder" extends="xul:hbox">
 	<content>
-		<xul:gicon class="folder" /><xul:label xbl:inherits="value=title" />
+		<xul:vbox>
+			<xul:hbox onclick="gbar.setFolder(this.getAttribute('id'), false,  this.getAttribute('title'));">
+				<xul:gicon class="folder" /><xul:label xbl:inherits="value=title" />
+			</xul:hbox>
+			<xul:textbox xbl:inherits="value=name" anonid="name_textbox" onkeydown="if(event.keyCode === 13){ saveName(); }" mode="new"/>
+			<xul:hbox align="center" mode="new">
+				<xul:button label="save" oncommand="saveName();"/><xul:label class="text-link" value="cancel" onclick="cancelRename();" />
+			</xul:hbox>
+		</xul:vbox>
 	</content>
+	<implementation>
+		<constructor>
+			<![CDATA[
+				if(this.getAttribute('new')){
+					document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").select();
+				}
+				
+			]]>
+		</constructor>
+		<method name="saveName">
+			<body>
+				<![CDATA[
+          			gbar.addClass(this, "loading");
+					
+					if(this.getAttribute('new') == "true"){
+						this.newTitle = document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").value;
+						gdListAPI.newDocument(this, this.newTitle, 'folder');
+					}
+					else{
+						this.newTitle = document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").value;
+          				gdListAPI.rename(this,document.getAnonymousElementByAttribute(this, "anonid", "name_textbox").value);
+					}
+					
+				]]>
+			</body>
+		</method>
+		<method name="nameSavedError">
+			<body>
+				<![CDATA[
+				gbar.removeClass(this, "loading");
+				]]>
+			</body>
+		</method>
+		<method name="nameSaved">
+			<parameter name="data" />
+			<body>
+				<![CDATA[
+					if(data){
+						gbar.removeClass(this, "edit");
+						gbar.removeClass(this, "loading");
+						debug(data);
+						entry = new gdEntry(data.entry);
+						newel = gbar.makegfolder(entry);
+						this.parentNode.replaceChild(newel, this);
+					}
+				]]>
+			</body>
+		</method>
+	</implementation>
 </binding>
 
 
@@ -366,14 +487,13 @@
 
 <binding id="gdlistholder" extends="xul:vbox">
 	<content>
-		<xul:hbox style="background-color:#EFEFEF;font-size:7pt;" class="listdetail"><xul:hbox class="nonemptytext"><xul:label value="1"/><xul:label value="-" /><xul:label xbl:inherits="value=numshowing" /><xul:label value="of" /><xul:label xbl:inherits="value=total" /></xul:hbox><xul:label value="0 Files found" class="emptytext"></xul:label><xul:spacer flex="1" /><xul:gicon class="refresh" onclick="gbar.refreshDocumentFeed();" /></xul:hbox>
+		<xul:hbox style="background-color:#EFEFEF;font-size:7pt;" class="listdetail"><xul:hbox class="nonemptytext"><xul:label value="1"/><xul:label value="-" /><xul:label xbl:inherits="value=numshowing" /><xul:label value="of" /><xul:label xbl:inherits="value=total" /></xul:hbox><xul:label value="0 Files found" class="emptytext"></xul:label><xul:spacer flex="1" /><xul:gicon class="refresh" onclick="gbar.refreshDocumentFeed();" collapsed="true"/><xul:label class="text-link" onclick="gbar.refreshDocumentFeed();" value="Refresh" /><xul:label class="text-link" value="Download" /></xul:hbox>
 		<xul:vbox flex="1" style="overflow:auto;">
 			<xul:vbox anonid="childrenholder">
 				<children />
 			</xul:vbox>
 			<xul:moreloader xbl:inherits="step, startindex, total, class" anonid="moreloader" onclick="gbar.getMoreDocuments();"/>
 		</xul:vbox>
-		
 	</content>
 	<implementation>
 		<method name="clearContents">
@@ -442,13 +562,13 @@
 	<content>
 		<xul:vbox flex="1">
 			<xul:hbox flex="1">
-				<xul:textbox flex="1" anonid="query" emptytext="Search documents" type="search" oncommand="gbar.getFullDocList();" searchbutton="true"/><xul:gicon class="search"  onclick="gbar.getFullDocList();"/>
+				<xul:textbox flex="1" anonid="query" emptytext="Search documents" type="search"  onkeydown="if(event.keyCode === 13){ gbar.getFullDocList(); }" searchbutton="true"/><xul:gicon class="search"  onclick="gbar.getFullDocList();"/>
 			</xul:hbox>
 			<xul:hbox pack="center">
 				<xul:checkbox label="Title" anonid="title"  oncommand="titleoptions(this);"/>
-				<xul:radiogroup orient="horizontal" anonid="title-exact" collapsed="true">
-				  <xul:radio label="Exact" value="true"/>
-				  <xul:radio label="Like"  value="false" selected="true"/>
+				<xul:radiogroup orient="horizontal" anonid="title-exact">
+				  <xul:radio label="Exact" value="true" disabled="true" anonid="exact"/>
+				  <xul:radio label="Like"  value="false" selected="true" disabled="true" anonid="like"/>
 				</xul:radiogroup>
 			</xul:hbox>
 		</xul:vbox>
@@ -465,16 +585,28 @@
 				]]>
 			</body>
 		</method>
+		<method name="resetForm">
+			<body>
+				<![CDATA[
+					document.getAnonymousElementByAttribute(this, "anonid", "query").value = "";
+				]]>
+			</body>
+		</method>
 		<method name="titleoptions">
 			<parameter name="obj" />
 			<body>
 				<![CDATA[
 					titleexact = document.getAnonymousElementByAttribute(this, "anonid", "title-exact");
+					exact = document.getAnonymousElementByAttribute(this, "anonid", "exact");
+					like = document.getAnonymousElementByAttribute(this, "anonid", "like");
+					
 					if(obj.hasAttribute("checked")){
-						titleexact.setAttribute('collapsed', false);
+						exact.setAttribute('disabled', false);
+						like.setAttribute('disabled', false);
 					}
 					else{
-						titleexact.setAttribute('collapsed', true);
+						exact.setAttribute('disabled', true);
+						like.setAttribute('disabled', true);
 					}
 				]]>
 			</body>

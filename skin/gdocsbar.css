@@ -23,7 +23,7 @@ page#gDocsList.loading > #gDocsList_list > *{
 
 gdocument{
     -moz-binding:url(chrome://gdocsbar/content/styles/bindings.xml#document);
-	background: white no-repeat 5px 5px;
+	background: white no-repeat 25px 7px;
 	padding:5px;
 	border-bottom: 1px solid #EFEFEF;
 	-moz-box-orient:vertical;
@@ -32,10 +32,34 @@ gdocument:hover{
 	background-color: #cfedfe;
 }
 gdocument > div.folders{
-	margin-left: 20px;
+	margin-left: 16px;
+	padding:5px 0 0;
 }
 gdocument > div.folders > label{
-	background-color: #cfedfe; font-size: 7pt; padding:1px 5px; -moz-border-radius:3px; margin-right: 5px; margin-left: 0px;
+    background-color: rgb(133, 79, 97);
+    color:white;
+	font-size: 7pt; padding:1px 5px; -moz-border-radius:2px; margin-right: 5px;
+}
+
+gdocument label[type=author]{
+    display:none;
+}
+gdocument div.folders{
+    display:none;
+}
+
+gdlistholder[showauthor=true] > gdocument label[type=author]{
+    display:-moz-box;
+}
+
+gdlistholder[showfolders=true] > gdocument div.folders{
+    display:-moz-box;
+}
+
+gdocument[checked=true]{
+    background-color: #fffd98;
+    border-bottom: 1px solid #CCC;
+    
 }
 
 gdocument.edit {
@@ -74,7 +98,9 @@ gdocument description:hover{
     border-bottom:1px solid blue;
     color:blue;
 }
-
+gdocument.folder{
+    background-image:url(chrome://gdocsbar/content/images/icon/icon_4_folder.gif);
+}
 gdocument.document{
     background-image:url(chrome://gdocsbar/content/images/icon/icon_4_doc.gif);
 }
@@ -92,9 +118,19 @@ gdocument label.date{
     font-size:7pt;
     color:gray;
 }
+gdocument.folder *[nonfolder=true]{
+    display:none;
+}
 
+#new_document_menu{
+    -moz-appearance:none;
+}
 
-
+#new_document_menu > menu{
+    font-size:7pt !important;
+    color:white;
+    font-weight:bold;
+}
 
 gicon{
     -moz-binding:url(chrome://gdocsbar/content/styles/bindings.xml#gicon);
@@ -102,6 +138,33 @@ gicon{
     background-image:url(chrome://gdocsbar/content/images/icon/icons_6.png);
     cursor:pointer;
     background-position: 16px center;
+}
+
+gicon.document{
+    background-image:url(chrome://gdocsbar/content/images/icon/icon_4_doc.gif);
+    background-repeat:no-repeat;
+    background-position:center center;
+    
+}
+
+
+gicon.presentation{
+    background-image:url(chrome://gdocsbar/content/images/icon/icon_4_pres.gif);
+    background-repeat:no-repeat;
+    background-position:center center;
+    
+}
+gicon.pdf{
+    background-image:url(chrome://gdocsbar/content/images/icon/icon_4_pdf.gif);
+    background-repeat:no-repeat;
+    background-position:center center;
+    
+}
+gicon.spreadsheet{
+    background-image:url(chrome://gdocsbar/content/images/icon/icon_4_spread.gif);
+    background-repeat:no-repeat;
+    background-position:center center;
+    
 }
 
 gicon.loading{
@@ -116,6 +179,24 @@ gicon.success{
 }
 gicon.error{
     background-image:url(chrome://gdocsbar/content/images/icon/icon_error.png);
+    background-repeat:no-repeat;
+    background-position:center center;
+}
+
+gicon.logout{
+    background-image:url(chrome://gdocsbar/content/images/icon/door_out.png);
+    background-repeat:no-repeat;
+    background-position:center center;
+}
+
+gicon.new{
+    background-image:url(chrome://gdocsbar/content/images/icon/page_new.gif);
+    background-repeat:no-repeat;
+    background-position:center center;
+}
+
+gicon.disk{
+    background-image:url(chrome://gdocsbar/content/images/icon/disk.png);
     background-repeat:no-repeat;
     background-position:center center;
 }
@@ -184,6 +265,12 @@ gfolder{
     background-color:#EFEFEF;
     border-bottom:1px solid #CCC;
     cursor:pointer;
+}
+gfolder *[mode=new]{
+    display:none;
+}
+gfolder[new=true] *[mode=new]{
+    display:-moz-box;
 }
 gfolder > *, gfolder:active{
     cursor:pointer;
@@ -263,7 +350,8 @@ gicon.refresh{
 gdsearch{
     -moz-binding: url(chrome://gdocsbar/content/styles/bindings.xml#gdsearch);
     padding:2px 5px;
-    background-color:white;
+    background-color:#67A7E3;
+    border-bottom:1px solid #CCC;
 }
 
 radiogroup[disabled]{
@@ -328,4 +416,93 @@ gdupdocument[status=success]{
 extendedrichlistbox{
     -moz-binding: url(chrome://gdocsbar/content/styles/bindings.xml#extendedrichlistbox);
     -moz-box-orient:vertical;
+    background:white url(chrome://gdocsbar/content/images/1242938347_box_upload_48.png) no-repeat center center;
+}
+
+
+#loginbox{
+    background-color:white;
+    padding:5px;
+    margin:10px;
+    -moz-border-radius:5px;
+    border-top:1px solid #CCC;
+    border-left:1px solid #CCC;
+    border-right:1px solid #777;
+    border-bottom:1px solid #777;
+}
+
+#loginbox > .header{
+    background-color:#67A7E3;
+    margin:-5px -5px;
+    padding:5px;
+    margin-bottom:10px;
+    -moz-border-radius-topleft:3px;
+    -moz-border-radius-topright:3px;
+}
+
+
+#topmenu{
+    border-bottom:1px solid #67A7E3;
+}
+
+#topmenu > label{
+    border-left:1px solid #FFF;
+    border-top:1px solid #FFF;
+    border-right:1px solid #CCC;
+    margin:0;
+    padding:5px 5px;
+    color:#999;
+    cursor:pointer;
+}
+#topmenu > label:hover{
+    color:#000;
+}
+
+#topmenu > label[selected]{
+    font-weight:bold;
+    border-left:none;
+    border-top:none;
+    background-color:#67A7E3;
+    color:#000;
+    padding:5px 10px;
+}
+
+#le_holder > description{
+    color:red;
+    margin:5px 5px 10px;
+    padding:5px;
+    -moz-border-radius:3px;
+    
+}
+
+label.back{
+    background:rgba(255,255,255,0.7) url(chrome://gdocsbar/content/images/icon/back.png) no-repeat center center;
+    margin:0 5px 0 0;
+    padding:2px 5px 2px 16px;
+    color:black;
+    -moz-border-radius:2px;
+    cursor:pointer;
+}
+
+label.back:hover{
+    background-color:white;
+}
+
+#gDocsList_folders_title > label.back{
+    display:none;
+}
+
+#gDocsList_folders_title[folder] > label.back{
+    display:-moz-box;
+}
+
+#gDocsList_folders_loading{
+    padding:5px;
+    background-color:white;
+    color:#666;
+    border-top:1px solid #CCC;
+}
+
+#gDocsList_folders_label{
+    cursor:pointer;
 }

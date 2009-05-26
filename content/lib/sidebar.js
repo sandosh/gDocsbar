@@ -14,8 +14,9 @@ var panelDragDropObserver =
 		//document.getElementById('uploadDrop').style.backgroundColor = "#FAE298";
 		evt.preventDefault(); 
 		//debug('ondragover...');
-		gbar.$("gDocsList").setAttribute('collapsed', true);
-		gbar.$("gDocsUploadpage").setAttribute('collapsed', false);
+		//gbar.$("gDocsList").setAttribute('collapsed', true);
+		//gbar.$("gDocsUploadpage").setAttribute('collapsed', false);
+		gbar.switchTab(topmenu_upload);
 	},
 	ondragenter : function (evt, transferData, session) {
 		evt.preventDefault(); 
@@ -44,9 +45,13 @@ gbar = GDOCSBARUtils.extend({
             $ = this.$;
             gbarc = Components.classes["@gdocsbar.com/gdocsbar;1"].getService(Components.interfaces.nsIGdocsBar);
             nsIObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+            passwordManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
+            
             le_holder = this.$("le_holder");
             page_list = this.$("gDocsList");
             page_login = this.$("gDocsBarLogin");
+            page_upload = this.$("gDocsUploadpage");
+            
             gDocsList_list = this.$("gDocsList_list");
             gDocsList_folders = this.$("gDocsList_folders");
             moreloader = this.$("moreloader");
@@ -58,6 +63,15 @@ gbar = GDOCSBARUtils.extend({
             folderHistory = new Array();
             foldertree = this.$("foldertree");
             gdUploadQueueBox = this.$("gdUploadQueueBox");
+            topmenu_documents = this.$("topmenu_documents");
+            topmenu_search = this.$("topmenu_search");
+            topmenu_upload = this.$("topmenu_upload");
+            login_loading = this.$("login_loading");
+            topmenu = this.$("topmenu");
+            gDocsList_folders_label = this.$("gDocsList_folders_label");
+            gDocsList_folders_title = this.$("gDocsList_folders_title");
+            gDocsList_folders_loading = this.$("gDocsList_folders_loading");
+            wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
         }).bind(this)();
         
         
@@ -68,6 +82,7 @@ gbar = GDOCSBARUtils.extend({
             switch(c){
                 case "login-error":
                 $("login_btn").setAttribute('disabled', false);
+                login_loading.setAttribute('collapsed', true);
                 error = a.wrappedJSObject;
                 if(error['error'])
                     this.setLoginError(error);
@@ -75,6 +90,9 @@ gbar = GDOCSBARUtils.extend({
                 
                 case "login-success":
                 auth = a.wrappedJSObject.auth;
+                $("login_btn").setAttribute('disabled', false);
+                login_loading.setAttribute('collapsed', true);
+                this.saveLoginInfo();
                 this.initLoggedInUser(auth);
                 break;
             }
@@ -84,29 +102,163 @@ gbar = GDOCSBARUtils.extend({
         debug(gbarc.wrappedJSObject.loggedIn);
         if(gbarc.wrappedJSObject.loggedIn){
             this.initLoggedInUser(gbarc.getSignedRequestHeader());
+        }else{
+            var hostname = 'chrome://gdocsbar/';
+            var formSubmitURL = null;  // not http://www.example.com/foo/auth.cgi
+            var httprealm = 'User Registration';
+            var username;
+            var password;
+
+            try {
+               // Get Login Manager 
+               // Find users for the given parameters
+               var logins = passwordManager.findLogins({}, hostname, formSubmitURL, httprealm);
+               // Find user from returned array of nsILoginInfo objects
+               for (var i = 0; i < logins.length; i++) {
+                  $("email").value = logins[i].username;
+                  $("password").value = logins[i].password;
+                  break;
+               }
+            }
+            catch(ex) {
+               // This will only happen if there is no nsILoginManager component class
+            }
         }
+    },
+    saveLoginInfo: function(){
+        var nsLoginInfo = new Components.Constructor("@mozilla.org/login-manager/loginInfo;1",Components.interfaces.nsILoginInfo, "init");
+        var extLoginInfo = new nsLoginInfo('chrome://gdocsbar/',null, 'User Registration',$("email").value, $("password").value, "", "");
+        try{
+            passwordManager.removeLogin(loginInfo);
+            passwordManager.addLogin(extLoginInfo);
+        }
+        catch(e){
+            
+        }
+    },
+    logoutUser: function(){
+        gbarc.logout();
+        topmenu.setAttribute('collapsed', true);
+        page_list.setAttribute('collapsed', true);
+        page_upload.setAttribute('collapsed', true);
+        gdsearchform.setAttribute('collapsed', true);
+        page_login.setAttribute('collapsed', false);
+    },
+    switchTab: function(A){
+        switch(A.id){
+            case "topmenu_documents":
+            topmenu_search.removeAttribute('selected');
+            topmenu_upload.removeAttribute('selected');
+            page_list.setAttribute('collapsed', false);
+            page_upload.setAttribute('collapsed', true);
+            gdsearchform.setAttribute('collapsed', true);
+            
+            var b = gdsearchform.getQueryParams();        
+            if(b.queryText.length > 0){
+                gdsearchform.resetForm();
+                this.getFullDocList();
+            }
+            
+            
+            
+            break;
+            
+            case "topmenu_search":
+            topmenu_documents.removeAttribute('selected');
+            topmenu_upload.removeAttribute('selected');
+            page_list.setAttribute('collapsed', false);
+            page_upload.setAttribute('collapsed', true);
+            gdsearchform.setAttribute('collapsed', false);
+            
+            break;
+            case "topmenu_upload":
+            topmenu_search.removeAttribute('selected');
+            topmenu_documents.removeAttribute('selected');
+            page_list.setAttribute('collapsed', true);
+            page_upload.setAttribute('collapsed', false);
+            gdsearchform.setAttribute('collapsed', true);
+            
+            break;
+        }
+        
+        A.setAttribute('selected', true);
     },
     initLoggedInUser: function(auth){
         page_login.setAttribute('collapsed', true);
         page_list.setAttribute('collapsed', false);
         gdListAPI.init(auth);
+//        gbar.switchTab(topmenu_upload);
+        this.getFullDocList();
+        this.getFolderList();
+        topmenu.setAttribute("collapsed", false);
+    },
+    setFolder: function(folderid, back, folder_name){
+        gdlistholder.setAttribute('folder', folderid);
+        gDocsList_folders_title.setAttribute('folder', folderid);
+        
+        gDocsList_folders_label.value = folder_name;
+        
+        if(!back)
+            folderHistory.push({id: folderid, name: folder_name});
         this.getFullDocList();
         this.getFolderList();
     },
-    setFolder: function(folderid, back){
-        gdlistholder.setAttribute('folder', folderid);
-        if(!back)
-            folderHistory.push(folderid);
-        this.getFullDocList();
-        this.getFolderList();
+    takeAction: function(el, event){
+        type = el.getAttribute('type');
+        if(type == "folder"){
+            this.setFolder(el.getAttribute('resourceId'), false, el.getAttribute('name'));
+        }
+        else{
+            var recentWindow = wm.getMostRecentWindow("navigator:browser");
+            recentWindow.openUILink(el.getAttribute('view'), event, false, true);
+        }
+    },
+    uploadFilesFromUI: function(){
+        var nsIFilePicker = Components.interfaces.nsIFilePicker;
+        var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+        fp.init(window, "Select one or more Files", nsIFilePicker.modeOpenMultiple);
+        var res = fp.show();
+        if (res == nsIFilePicker.returnOK){
+          var thefile = fp.file;
+          var enumerator = fp.files;
+
+          while (enumerator.hasMoreElements()) {
+            var file = enumerator.getNext().QueryInterface(Components.interfaces.nsILocalFile);
+            
+            var gdupdocument = document.createElement("gdupdocument");
+              gdupdocument.setAttribute('title', file.leafName);
+              gdupdocument.setAttribute('status', "uploading");
+
+              if(gdlistholder.getAttribute('folder')){
+                  folder = gdlistholder.getAttribute('folder');
+                  gdupdocument.setAttribute('folder', folder);
+              }
+
+
+
+              if(gdUploadQueueBox.childNodes.length == 0)
+                gdUploadQueueBox.appendChild(gdupdocument);
+              else
+                gdUploadQueueBox.insertBefore(gdupdocument, gdUploadQueueBox.firstChild);
+
+              gdupdocument.setFile(file);
+              gdupdocument.upload();
+              
+              
+          }
+          
+        }
+        
     },
     goBackFolder: function(){
         folderHistory.pop();
         if(folderHistory.length > 0)
-            this.setFolder(folderHistory[folderHistory.length -1], true);
+            this.setFolder(folderHistory[folderHistory.length -1].id, true, folderHistory[folderHistory.length -1].name);
         else
         {
             gdlistholder.removeAttribute('folder');
+            gDocsList_folders_title.removeAttribute('folder');
+            gDocsList_folders_label.value = "Folders";
             this.getFullDocList();
             this.getFolderList();
         }
@@ -121,7 +273,6 @@ gbar = GDOCSBARUtils.extend({
         
         a = false;
         var b = gdsearchform.getQueryParams();        
-        //debug(b);
         if(b.title){
             if(b.queryText.length > 0){
                 var a = {};
@@ -138,22 +289,14 @@ gbar = GDOCSBARUtils.extend({
         out.types = types;
         
         out.query = a;
-        //debug(out.query);
         return out;
     },
     getMoreDocuments: function(){
-        /*
-        debug("getting more...");
-        this.addClass(gdlistholder, "loading");
-        gdListAPI.getMoreDocuments(this.displayPartialDocList.bind(this) , function(){ debug("error"); });
-        */
         this.addClass(gdlistholder, "loading");
         q = this.getQueryParams();
         q.query = {}
-        q.query['start-index'] = parseInt(gdlistholder.getAttribute('startindex')) + parseInt(gdlistholder.getAttribute('numshowing'));
-        //debug("got query...", q);
+        q.query['start-index'] = parseInt(gdlistholder.getAttribute('startindex')) + parseInt(gdlistholder.getAttribute('step'));
         gdListAPI.getAllDocuments(q.types, (q.query ? q.query : null), this.displayPartialDocList.bind(this) , function(code, data){ debug(code +", "+ data); });
-        
     },
     getFullDocList: function(){
         debug("setting up requests...");
@@ -168,6 +311,9 @@ gbar = GDOCSBARUtils.extend({
         q = this.getQueryParams();
         q.query['last-index'] = 1;
         gdListAPI.getAllDocuments(q.types, (q.query ? q.query : null), this.displayDocList.bind(this) , function(code, data){ debug(code +", "+ data); });
+        
+        this.getFolderList();
+        
     },
     displayRefreshedFeed: function(){
         
@@ -248,18 +394,38 @@ gbar = GDOCSBARUtils.extend({
         d.setAttribute("name", e.title);
         d.setAttribute("star", e.starred ? "star" : "nostar");
         d.setAttribute("_hidden", e.hidden);
-        var monthname=new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+        var monthname = new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
         datestring = this.zeroPadding(e.updated.getMonth()+1) + "/" + this.zeroPadding(e.updated.getDate());
         d.setAttribute("datetime", datestring);
         d.setAttribute("author", e.authors[0].name);
         d.setAttribute("edit", e.editLink);
+        d.setAttribute("view", e.viewLink);
         d.setAttribute("etag", e.etag);
         d.setAttribute("type", e._type);
         d.setAttribute("resourceId",e.resourceId);
         d.setAttribute("resource",e._type);
+        
+        d.setAttribute("folders", JSON.toString(e.folders));
+        
         this.addClass(d, e._type);
-        //this.addClass(d, "edit");
         return d;
+    },
+    newDocument: function(type){
+        
+            d = document.createElement("gdocument");
+            d.setAttribute("name", "New "+type);
+            d.setAttribute("new", "true");
+            d.setAttribute("type", type);
+            this.addClass(d, type);
+            this.addClass(d, "edit");
+            d.setAttribute("star", "nostar");
+        if(type != "folder"){
+            gdlistholder.insertBefore(d, gdlistholder.firstChild);
+        }
+        else{
+            gDocsList_folders.setAttribute('hidden', false);
+            gDocsList_folders.insertBefore(d, gDocsList_folders.firstChild);
+        }
     },
     prepareFoldersForMove: function(){
         foldertree.openPopup(document.popupNode, "at_pointer");
@@ -275,6 +441,7 @@ gbar = GDOCSBARUtils.extend({
             }
         debug(folder, document.popupNode);
         document.popupNode.move(folder);
+        foldertree.hidePopup();
     },
     initTreeFolders: function(){
        /* gbarc = Components.classes["@gdocsbar.com/gdocsbar;1"].getService(Components.interfaces.nsIGdocsBar);
@@ -375,6 +542,10 @@ gbar = GDOCSBARUtils.extend({
     },
     getFolderList: function(){
         
+        gDocsList_folders.setAttribute('collapsed', true);
+        gDocsList_folders_title.setAttribute('collapsed', true);
+        gDocsList_folders_loading.setAttribute('collapsed', false);
+        
         while(gDocsList_folders.childNodes.length > 0){
             gDocsList_folders.removeChild(gDocsList_folders.firstChild);
         }
@@ -389,18 +560,36 @@ gbar = GDOCSBARUtils.extend({
     displayFolderList: function(data){
         debug(data);
         _gdFeed = new gdFeed(result);
-        debug("folder result...");
+        var l = 0;
         for( var i=0; i < _gdFeed.entries.length; i++){
             e = _gdFeed.entries[i];
             if(e.folders.length != 0 && !gdlistholder.hasAttribute('folder'))
             {
                 continue;
-            }
-            var f = document.createElement("gfolder");
+            }  
+            /*var f = document.createElement("gfolder");
             f.setAttribute('title', e.title);
             f.setAttribute('id', e.resourceId);
-            f.setAttribute('onclick', "gbar.setFolder(this.getAttribute('id'));")
-            gDocsList_folders.appendChild(f);
+            */
+            var entry = this.makegdocument(_gdFeed.entries[i]);
+            
+            //f.setAttribute('onclick', "gbar.setFolder(this.getAttribute('id'),false,  '"+e.title+"');")
+            gDocsList_folders.appendChild(entry);
+            l++;
+        }
+        
+        gDocsList_folders_label.value = (folderHistory.length > 0 ? folderHistory[folderHistory.length -1].name : "Folders") + " ( "+l+" )";
+        gDocsList_folders.setAttribute('collapsed', false);
+        gDocsList_folders_title.setAttribute('collapsed', false);
+        gDocsList_folders_loading.setAttribute('collapsed', true);
+    },
+    showHideFolders: function(){
+        
+        if(gDocsList_folders.getAttribute('hidden') == "true" ){
+            gDocsList_folders.setAttribute('hidden', false);
+        }
+        else{
+            gDocsList_folders.setAttribute('hidden', true);
         }
     },
     destruct: function(){
@@ -413,6 +602,7 @@ gbar = GDOCSBARUtils.extend({
         debug($("email").value, $("password").value);
         gbarc.login($("email").value, $("password").value, $("captcha_textbox").value);
         $("login_btn").setAttribute('disabled', true);
+        login_loading.setAttribute('collapsed', false);
     },
     cancelLogin: function(){
         for(var i=0; i<le_holder.childNodes.length; i++){
@@ -424,6 +614,7 @@ gbar = GDOCSBARUtils.extend({
     setLoginError: function(error){
         error_id = "le_"+error['error'];
         $(error_id).setAttribute('collapsed', false);
+        login_loading.setAttribute('collapsed', true);
         $("captcha_image").setAttribute('src',"http://www.google.com/accounts/" + error['captchaurl']);
     },
     toggleSearchBox: function(){
@@ -489,6 +680,7 @@ gbar = GDOCSBARUtils.extend({
           }
           debug("filename: " + fileObj.leafName);
           this._uploadQ.push({"file": fileObj, "_type": "file", "name": fileObj.leafName});
+          
           var gdupdocument = document.createElement("gdupdocument");
           gdupdocument.setAttribute('title', fileObj.leafName);
           gdupdocument.setAttribute('status', "uploading");

@@ -39,6 +39,11 @@ function setupRequest(url, signed){
     return req;
 }
 
+function logout(){
+    this.init();
+    this.globalNotify({},"logout");
+}
+
 function login(email, password, captchaValue){
     var req = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Components.interfaces.nsIXMLHttpRequest);
     req.open("POST", this._loginurl, true);

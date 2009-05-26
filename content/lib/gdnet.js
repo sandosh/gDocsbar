@@ -63,6 +63,9 @@ gdEntry = Base.extend({
             if(r.link[i].rel == "edit"){
                 this.editLink = r.link[i].href;
             }
+            else if(r.link[i].rel == "alternate"){
+                this.viewLink = r.link[i].href;
+            }
         }
         
     }
@@ -121,7 +124,7 @@ gdMime.extend({
   getMIMETypeForExt: function(name) {
       name = name.toLowerCase();
       var ext = name.substr((name.lastIndexOf(".") + 1));
-      console.log(ext);
+      debug(ext);
       switch (ext) {
       case "txt":
           return "text/plain";
@@ -276,7 +279,7 @@ gdListAPI.extend({
             r = new gdNet(url, method, (data ? data : null), o.getObject());
         }
         catch(e){
-            //debug(e);
+            debug(e);
         }
         r._onSuccess = onSuccess;
         r.onSuccess = (function(data){ this._onSuccess(this.parseResponse(data)); }).bind(r);
@@ -344,7 +347,7 @@ gdListAPI.extend({
         debug("testing...");
         mr = this.setupRequest("/feeds/documents/private/full", this._options.getObject(), "GET", null, function(data){ debug(data); }, function(){});
         
-        console.log("mr", mr);
+        //console.log("mr", mr);
         
         mr.send(null);
     },
@@ -369,6 +372,12 @@ gdListAPI.extend({
         mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true,gdEntryEl.nameSaved.bind(gdEntryEl), gdEntryEl.nameSavedError.bind(gdEntryEl) , {"Content-Type": "application/atom+xml", "If-Match": etag});
         mr.send(outStr);
     },
+    newDocument: function(gdEntryEl, title, type){
+        outStr = gAtomFeed.getNewDocXML(type, title);
+        debug(outStr);
+        mr = this.setupRequest(this._host + this.listURL, {alt: "json"}, "POST", true,gdEntryEl.nameSaved.bind(gdEntryEl), gdEntryEl.nameSavedError.bind(gdEntryEl) , {"Content-Type": "application/atom+xml"});
+        mr.send(outStr);
+    },
     star: function(gdEntryEl) {
         //debug("in star 2");
         editLink = gdEntryEl.getAttribute('edit');
@@ -376,7 +385,7 @@ gdListAPI.extend({
         outStr = gAtomFeed.getUpdateXML(gdEntryEl, 'star'); //star(gdEntryEl.getAttribute('name'), etag);
         mr = this.setupRequest(editLink, {alt: "json"}, "PUT", true, gdEntryEl.nameSaved.bind(gdEntryEl), gdEntryEl.nameSavedError.bind(gdEntryEl)  , {"Content-Type": "application/atom+xml", "If-Match": etag});
         mr.send(outStr);
-        //debug(outStr);
+        debug(outStr);
     },
     unstar: function(gdEntryEl){
         editLink = gdEntryEl.getAttribute('edit');
@@ -405,7 +414,7 @@ gdListAPI.extend({
         debug("in move");
         outStr = gAtomFeed.getMoveXML(gdEntryEl);
         var folderlink = "http://docs.google.com/feeds/folders/private/full/folder:"+folder;
-        mr = this.setupRequest(folderlink, {}, "POST", true, function(){},function(){}, {"Content-Type": "application/atom+xml"});
+        mr = this.setupRequest(folderlink, {alt: "json"}, "POST", true, gdEntryEl.nameSaved.bind(gdEntryEl),function(){}, {"Content-Type": "application/atom+xml"});
         mr.send(outStr);
     },
     download: function(gdEntryEl,format) {
@@ -605,6 +614,18 @@ gAtomFeed.getUpdateXML = function(gdEntryEl, overwrite){
     }
     var type = this.type(gdEntryEl.getAttribute('type'));
     parent.appendChild(type);
+    xmlString = parent.toXMLString();
+    return xmlString;
+}
+
+gAtomFeed.getNewDocXML = function(_type, _title){
+    var parent = this.parent();
+    var type = this.type(_type);
+    parent.appendChild(type);
+    
+    var title = this.title(_title);
+    parent.appendChild(title);
+
     xmlString = parent.toXMLString();
     return xmlString;
 }

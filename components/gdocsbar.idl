@@ -14,5 +14,6 @@ interface nsIGdocsBar: nsISupports
 	nsISupports setupRequest(in string url, in string signed);
 	
 	void login(in string email, in string password, in string captchaValue);
+	void logout();
 };
 

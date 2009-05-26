@@ -74,9 +74,25 @@
 		<menuitem label="Hidden"><gicon class="hidden"/><label value="Hidden" /></menuitem>
 		<menuitem label="Trashed"><gicon class="delete"/><label value="Trashed" /></menuitem>
 	</menupopup>
+	
+	<panel id="newdocumentlist" oncommand="gbar.getFullDocList();">
+		<hbox>
+			<gicon class="document" /><label value="Document" />
+		</hbox>
+		<hbox>
+			<gicon class="presentation" /><label value="Presentation" />
+		</hbox>
+		<hbox>
+			<gicon class="spreadsheet" /><label value="Spreadsheet" />
+		</hbox>
+		<hbox>
+			<gicon class="folder" /><label value="Folder" />
+		</hbox>
+	</panel>
+	
 	<popupset>
-		<panel id="foldertree" noautohide="false" width="400" onpopuphiding="return false;">
-			<vbox style="padding:5px; background-color:#eee;" height="300" flex="1">
+		<panel id="foldertree" noautohide="false">
+			<vbox style="padding:5px; background-color:#eee;" width="300"  height="200" flex="1">
 				<tree id="myTree" flex="1" hidecolumnpicker="false" seltype="single" class="tree"
 				      onclick="gbar.navigateFolder(event)">
 				  <treecols id="myTree2-treeCols">
@@ -87,12 +103,21 @@
 				  </treechildren>
 				</tree>
 				<hbox mode="move">
-					<button label="Move" oncommand="gbar.moveToFolder();"/>
+					<button label="Move" oncommand="gbar.moveToFolder();"/><spacer flex="1" /><button label="Cancel" oncommand="gbar.$('foldertree').hidePopup();" />
 				</hbox>
 			</vbox>
 		</panel>
 	</popupset>
+	<hbox id="topmenu" collapsed="true">
+		<label value="Documents"  selected="true" id="topmenu_documents" onclick="gbar.switchTab(this);"/>
+		<label value="Search" id="topmenu_search" onclick="gbar.switchTab(this);"/>
+		<label value="Upload" id="topmenu_upload" onclick="gbar.switchTab(this);"/>
+		<gicon class="logout" style="margin-left:10px;" tooltiptext="Logout" onclick="gbar.logoutUser();"/>
+	</hbox>
 <page id="gDocsList" title="List" flex="1" collapsed="true">
+	
+	<gdsearch id="gdsearchform" collapsed="true"/>
+	
 	<hbox class="title">
 		<menulist id="feedtype">
 		  <menupopup id="menupopup" oncommand="gbar.getFullDocList();">
@@ -105,7 +130,6 @@
 			<menuitem label="Trashed" value="trashed"><gicon class="delete"/><label value="Trashed" /></menuitem>
 		  </menupopup>
 		</menulist>
-		<spacer flex="1" />
 		
 		<menulist id="showtypes" style="-moz-appearance:none; background: #f7fdff url(chrome://gdocsbar/content/images/icon/pulldown_icon.png) no-repeat 25px; padding:2px 0 2px 4px; -moz-border-radius:3px;">
 			<menupopup id="menupopup" oncommand="gbar.getFullDocList();">
@@ -116,39 +140,85 @@
 				<menuitem image="chrome://gdocsbar/content/images/icon/icon_4_pdf.gif" value="pdf"></menuitem>
 			</menupopup>
 		</menulist>
-		<gicon class="search" onclick="gbar.toggleSearchBox();"/>
+		<menubar id="new_document_menu" class="new">
+		    <menu label="New +">
+		      <menupopup id="edit-popup">
+				<menuitem label="Document" oncommand="gbar.newDocument('document');"></menuitem>
+				<menuitem label="Presentation" oncommand="gbar.newDocument('presentation');"></menuitem>
+				<menuitem label="Spreadsheet" oncommand="gbar.newDocument('spreadsheet');"></menuitem>
+				<menuitem label="Folder" oncommand="gbar.newDocument('folder');"></menuitem>
+		      </menupopup>
+		    </menu>
+		  </menubar>
+		
+		<spacer flex="1" />
+		
+		<gicon class="search" onclick="gbar.toggleSearchBox();" collapsed="true"/>
 	</hbox>
-	<gdsearch id="gdsearchform" collapsed="true"/>
-	<gdlistholder id="gdlistholder" step="20" flex="2"/>
+	<gdlistholder id="gdlistholder" step="20" flex="2" showfolders="true"/>
 	
 	<splitter collapse="before" resizeafter="farthest" collapsed="true">
 	  </splitter>
-	<hbox class="title">
-		<gicon class="back" onclick="gbar.goBackFolder();"/><gicon class="folder" /><label value="Folders" />
+	<hbox id="gDocsList_folders_loading">
+		<gicon class="loading" /><label value="Loading..." />
 	</hbox>
-	<vbox id="gDocsList_folders" maxheight="200" style="overflow:auto;">
+	<hbox class="title" id="gDocsList_folders_title">
+		<label class="back" onclick="gbar.goBackFolder();"/><gicon class="folder" /><label value="Folders" id="gDocsList_folders_label" onclick="gbar.showHideFolders();" flex="1"/>
+	</hbox>
+	<vbox id="gDocsList_folders" maxheight="200" style="overflow:auto;" hidden="true">
 	</vbox>
 </page>
 <page id="gDocsUploadpage" title="Upload" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" flex="1" collapsed="true">
-	<hbox>
-		<button label="view documents" oncommand="gbar.$('gDocsList').setAttribute('collapsed', false);gbar.$('gDocsUploadpage').setAttribute('collapsed', true);"/>
+	<hbox class="title">
+		<button label="Select file(s)" oncommand="gbar.uploadFilesFromUI();"/><spacer flex="1" /><button label="Clean" />
 	</hbox>
 	<extendedrichlistbox flex="1" id="gdUploadQueueBox">
 	</extendedrichlistbox>
 </page>
-<page id="gDocsBarLogin" title="hello"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" style="background-color:white;">
+
+
+<page id="gDocsBarLogin" title="hello" orient="vertical" flex="1">
+<spacer flex="1" />
+<vbox id="loginbox">
+	<hbox class="header">
+		<gicon class="logout" /><label value="Login" />
+	</hbox>
+	<hbox style="padding:5px;">
 		
-<vbox flex="1">
+	</hbox>
 	<vbox id="le_holder">
-		<label value="username or password is incorrect" id="le_BadAuthentication" collapsed="true"/>
-		<label value="The account email address has not been verified. Use your Google account directly to resolve the issue before logging in using a non-Google application." id="le_NotVerified" collapsed="true" />
-		<label value="You have not agreed to terms. You will need to access your Google account directly to resolve the issue before logging in using a non-Google application. " id="le_TermsNotAgreed" collapsed="true" />
-		<label value="Unknown error" id="le_Unknown" collapsed="true" />
-		<label value="This user account has been deleted." id="le_AccountDeleted" collapsed="true" />
-		<label value="This user account has been disabled." id="le_AccountDisabled" collapsed="true" />
-		<label value="Your access to the specified service has been disabled. (The user account may still be valid.) " id="le_ServiceDisabled" collapsed="true" />
-		<label value="The service is not available; try again later." id="le_ServiceUnavailable" collapsed="true" />
+		<description id="le_BadAuthentication" collapsed="true">
+		Username or Password is incorrect.
+		</description>
+
+		<description id="le_NotVerified" collapsed="true">
+		The account email address has not been verified. Use your Google account directly to resolve the issue before logging in using a non-Google application.
+		</description>
+
+		<description value=" " id="le_TermsNotAgreed" collapsed="true">
+		You have not agreed to terms. You will need to access your Google account directly to resolve the issue before logging in using a non-Google application.
+		</description>
+
+
+		<description id="le_Unknown" collapsed="true">
+		Unknown error
+		</description>
+
+		<description id="le_AccountDeleted" collapsed="true">
+		This user account has been deleted.
+		</description>
+
+		<description id="le_AccountDisabled" collapsed="true">
+		This user account has been disabled.
+		</description>
+
+		<description id="le_ServiceDisabled" collapsed="true">
+		Your access to the specified service has been disabled. (The user account may still be valid.) 
+		</description>
+
+		<description id="le_ServiceUnavailable" collapsed="true">
+		The service is not available; try again later.
+		</description>
 		<vbox id="le_CaptchaRequired" collapsed="true">
 			<image width="200" height="70" id="captcha_image"/>
 			<textbox id="captcha_textbox" emptytext="Enter the text shown above"/>
@@ -156,10 +226,12 @@
 	</vbox>
 	<textbox emptytext="Email" id="email"/>
 	<textbox emptytext="Password" id="password" type="password"/>
-	<checkbox label="Remember me" />
+	<checkbox label="Remember me" collapsed="true"/>
 	<hbox align="center">
-		<button label="Login" oncommand="gbar.login();" id="login_btn"/><label value="cancel" class="text-link" onclick="gbar.cancelLogin()" collapsed="true"/>
+		<gicon class="loading" style="margin:0 5px;" id="login_loading" collapsed="true" /><spacer flex="1" /><button label="Login" oncommand="gbar.login();" id="login_btn"/><label value="cancel" class="text-link" onclick="gbar.cancelLogin()" collapsed="true"/>
 	</hbox>
 </vbox>
+<spacer flex="1" />
+
 </page>
 </window>
