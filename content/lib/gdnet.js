@@ -434,7 +434,7 @@ gdListAPI.extend({
         debug(url);
         
         
-        /*
+        
         filename = gdEntryEl.getAttribute('name') + '.' + format;
         netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
         // Open the save file dialog
@@ -459,11 +459,11 @@ gdListAPI.extend({
         var dl = dm.addDownload(0, uri, fileURI, file.leafName, null, 0, null, wbp);
         wbp.progressListener = dl;
         //save file to target
-*/
-        //wbp.saveURI(uri,null,null,null,null,file);
-        wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+        wbp.persistFlags &= ~Components.interfaces.nsIWebBrowserPersist.PERSIST_FLAGS_NO_CONVERSION; 
+        wbp.saveURI(uri,null,null,null,null,file);
+        /*wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
         var recentWindow = wm.getMostRecentWindow("navigator:browser");
-        recentWindow.openUILink(url, null, false, true);
+        recentWindow.openUILink(url, null, false, true);*/
     },
     getFolders: function(){
         this.resetOptions();
