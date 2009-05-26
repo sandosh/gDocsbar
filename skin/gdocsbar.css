@@ -352,7 +352,7 @@ hbox.nonemptytext > label{
 }
 
 gicon.refresh{
-    background-image:url(chrome://gdocsbar/content/images/icon/refresh.png);
+    background:transparent url(chrome://gdocsbar/content/images/icon/refresh.png) no-repeat center center;
 }
 
 gdsearch{

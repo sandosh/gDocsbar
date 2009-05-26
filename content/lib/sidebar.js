@@ -292,7 +292,7 @@ gbar = GDOCSBARUtils.extend({
         return out;
     },
     downloadMultiple: function() {
-      debug("in downloadmultiple")
+      /*debug("in downloadmultiple")
       debug(gdlistholder)
       oElm = gdlistholder
       strTagName = "gdocument"
@@ -319,7 +319,29 @@ gbar = GDOCSBARUtils.extend({
         debug(resource)
         format = format_table[resource] ? format_table[resource] : "pdf"
         gdListAPI.download(arrReturnElements[i],format) 
+      }*/
+      
+      checked_documents  = document.getElementsByAttribute("checked", "true");
+      format_table = {"document" : "doc", "spreadsheet" : "xls", "presentation" : "ppt"} 
+      if(checked_documents.length > 0){
+          const nsIFilePicker = Components.interfaces.nsIFilePicker;
+          var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+          fp.init(window, "Save File...", nsIFilePicker.modeGetFolder);
+          var rv = fp.show();
+          if(rv == nsIFilePicker.returnOK){
+            var file = fp.file;
+            debug(file.path);
+            folderPath = file.path;
+          }
       }
+      
+      for(var i=0; i<checked_documents.length; i++){
+          el = checked_documents[i];
+          resource = el.getAttribute("resource");
+          format = format_table[resource] ? format_table[resource] : "pdf"
+          gdListAPI.download(el,format, folderPath) 
+      }
+      
     },
     getMoreDocuments: function(){
         this.addClass(gdlistholder, "loading");

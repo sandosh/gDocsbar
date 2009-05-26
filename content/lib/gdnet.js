@@ -430,7 +430,7 @@ gdListAPI.extend({
         mr = this.setupRequest(folderlink, {alt: "json"}, "POST", true, gdEntryEl.nameSaved.bind(gdEntryEl),function(){}, {"Content-Type": "application/atom+xml"});
         mr.send(outStr);
     },
-    download: function(gdEntryEl,format) {
+    download: function(gdEntryEl,format, folder) {
         //debug("in download");
         debug(format)
         resource = gdEntryEl.getAttribute('resource');
@@ -448,10 +448,12 @@ gdListAPI.extend({
         debug(url);
         
         
-        /*
+        
         filename = gdEntryEl.getAttribute('name') + '.' + format;
         netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
         // Open the save file dialog
+        
+        if(!folder){
         const nsIFilePicker = Components.interfaces.nsIFilePicker;
         var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
         fp.init(window, "Save File...", nsIFilePicker.modeSave);
@@ -464,6 +466,19 @@ gdListAPI.extend({
             file.create( Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 420 );
           }
         }
+        }
+        else{
+            finalPath = folder + "/" + filename;
+            var file = Components.classes["@mozilla.org/file/local;1"].
+                                 createInstance(Components.interfaces.nsILocalFile);
+            file.initWithPath(finalPath);
+            if(file.exists() == false){//create as necessary
+                file.create( Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 420 );
+            }
+        }
+    
+        
+        
         var dm = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
         var ios = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces.nsIIOService);
         var uri = ios.newURI(url, null, null);
@@ -472,13 +487,9 @@ gdListAPI.extend({
         var wbp = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(Components.interfaces.nsIWebBrowserPersist);
         var dl = dm.addDownload(0, uri, fileURI, file.leafName, null, 0, null, wbp);
         wbp.progressListener = dl;
-        //save file to target
-*/
-        //wbp.saveURI(uri,null,null,null,null,file);
-        //wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-        //var recentWindow = wm.getMostRecentWindow("navigator:browser");
-        //recentWindow.openUILink(url, null, false, true);
-        gdBrowser.openURL(url)
+
+        wbp.persistFlags &= ~Components.interfaces.nsIWebBrowserPersist.PERSIST_FLAGS_NO_CONVERSION; 
+        wbp.saveURI(uri,null,null,null,null,file);
     },
     getFolders: function(){
         this.resetOptions();
