@@ -203,15 +203,22 @@
 	</implementation>
 </binding>
 
+<binding id="mybox">
+	<content>
+		<children />
+	</content>
+</binding>
+
 <binding id="document" extends="xul:vbox">
 	<content>
 		<xul:hbox style="overflow-x:hidden;" mode="displayandedit">
-			<xul:gicon xbl:inherits="class=star" onclick="star();"/><xul:description xbl:inherits="xbl:text=name, tooltiptext=name" class="name" onclick="takeAction(event);"/>
+			<xul:gicon xbl:inherits="class=star" onclick="star();"/><xul:description xbl:inherits="xbl:text=name, tooltiptext=name" class="name" onclick="takeAction(event);" style="margin-top:3px; height:16px !important;"/>
 		</xul:hbox>
-		<html:div mode="display" class="folders" anonid="folders" style="display:none;" nonfolder="true">
+		<html:div mode="display" class="folders" anonid="folders" style="display:none; width:100%" nonfolder="true" flex="1">
+			
 		</html:div>
 		<xul:vbox flex="1" mode="display" nonfolder="true">
-			<xul:hbox align="center" style="margin-top:5px;" mode="display" flex="1">
+			<xul:hbox align="center" style="margin-top:0px;padding:0;" mode="display" flex="1">
 				<xul:gicon xbl:inherits="class=star" onclick="star();" collapsed="true"/><xul:label xbl:inherits="value=datetime" class="date" /><xul:label crop="end" xbl:inherits="value=author, tooltiptext=author" class="date"/><xul:gicon class="options" popup="gdocumentmenu" xbl:inherits="resource" tooltiptext="Actions" collapsed="true"/><xul:gicon class="more" tooltiptext="More information" collapsed="true"/><xul:spacer flex="1" /><xul:checkbox oncommand="checkMe(this.checked);"/>
 			</xul:hbox>
 		</xul:vbox>

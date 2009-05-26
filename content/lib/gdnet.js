@@ -418,7 +418,9 @@ gdListAPI.extend({
     },
     download: function(gdEntryEl,format) {
         //debug("in download");
-        resource = gdEntryEl.nameSaved.bind('resource');
+        debug(format)
+        resource = gdEntryEl.getAttribute('resource');
+        
         var fmCmd = {"pdf" : 12, "xls" : 4, "csv" : 5, "ods" : 13, "tsv" : 23, "html" : 102 };
         key = gdEntryEl.getAttribute('resourceId');
         if(resource == "spreadsheet") {
@@ -428,7 +430,11 @@ gdListAPI.extend({
         } else {
           var url = this.documentExport + "?docID="+ key +"&exportFormat=" + format
         }
-        //debug(url);
+        
+        debug(url);
+        
+        
+        /*
         filename = gdEntryEl.getAttribute('name') + '.' + format;
         netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
         // Open the save file dialog
@@ -453,7 +459,11 @@ gdListAPI.extend({
         var dl = dm.addDownload(0, uri, fileURI, file.leafName, null, 0, null, wbp);
         wbp.progressListener = dl;
         //save file to target
-        wbp.saveURI(uri,null,null,null,"Authorization:GoogleLogin auth=" + this._auth +"\r\n",file);
+*/
+        //wbp.saveURI(uri,null,null,null,null,file);
+        wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+        var recentWindow = wm.getMostRecentWindow("navigator:browser");
+        recentWindow.openUILink(url, null, false, true);
     },
     getFolders: function(){
         this.resetOptions();

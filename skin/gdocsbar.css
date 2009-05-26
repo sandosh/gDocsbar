@@ -21,24 +21,29 @@ page#gDocsList.loading > #gDocsList_list > *{
 	display: none;
 }
 
+mybox{
+    -moz-binding:url(chrome://gdocsbar/content/styles/bindings.xml#mybox);
+}
+
 gdocument{
     -moz-binding:url(chrome://gdocsbar/content/styles/bindings.xml#document);
 	background: white no-repeat 25px 7px;
 	padding:5px;
 	border-bottom: 1px solid #EFEFEF;
 	-moz-box-orient:vertical;
+	-moz-box-flex:1;
 }
 gdocument:hover{
 	background-color: #cfedfe;
 }
 gdocument > div.folders{
-	margin-left: 16px;
+	margin-left: 0px;
 	padding:5px 0 0;
 }
 gdocument > div.folders > label{
     background-color: rgb(133, 79, 97);
     color:white;
-	font-size: 7pt; padding:1px 5px; -moz-border-radius:2px; margin-right: 5px;
+	font-size: 7pt; padding:1px 5px; -moz-border-radius:2px; margin-right: 5px; margin-left:0;
 }
 
 gdocument label[type=author]{
@@ -209,6 +214,7 @@ gicon.save{
 }
 gicon.star{
     background-position: -272px center;
+    background-repeat:no-repeat;
 }
 gicon.share{
     background-position: -32px center;
@@ -229,6 +235,8 @@ gicon.delete{
     background-position: -96px center;
 }
 gicon.nostar{
+    background-repeat:no-repeat;
+    
     background-position: -304px center;
 }
 gicon.more{
