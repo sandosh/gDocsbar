@@ -320,16 +320,26 @@
 		</method>
 		<method name="nameSavedError">
 			<body>
-				<![CDATA[
-          gdListAPI.refreshEntry(this);
+        <![CDATA[
+        if(this.hasAttribute('edit')) {
+            gdListAPI.refreshEntry(this);
+        } else {
+            gbar.removeClass(this, "loading");
+        }
 				]]>
 			</body>
 		</method>
 		<method name="nameSaved">
 			<parameter name="data" />
 			<body>
-				<![CDATA[
-          gdListAPI.refreshEntry(this);
+        <![CDATA[
+          if(data) {
+            entry = new gdEntry(data.entry);
+            this.setAttribute('edit', entry.editLink)
+            gdListAPI.refreshEntry(this);
+            } else {
+				      gbar.removeClass(this, "loading");
+            }
 				]]>
 			</body>
 		</method>
