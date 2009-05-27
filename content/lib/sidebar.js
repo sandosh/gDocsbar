@@ -75,7 +75,6 @@ gbar = GDOCSBARUtils.extend({
             wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
         }).bind(this)();
         
-        gbarc.reload();
         
         debug("sidebar init...");
         var gdocsbarobserver = new Object();
