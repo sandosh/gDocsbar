@@ -335,10 +335,14 @@
 		<method name="nameSaved">
 			<parameter name="data" />
 			<body>
-				<![CDATA[
-					entry = new gdEntry(data.entry);
-					this.setAttribute('edit', entry.editLink);
-          			gdListAPI.refreshEntry(this);
+        <![CDATA[
+          if(data) {
+            entry = new gdEntry(data.entry);
+            this.setAttribute('edit', entry.editLink)
+            gdListAPI.refreshEntry(this);
+            } else {
+				      gbar.removeClass(this, "loading");
+            }
 				]]>
 			</body>
 		</method>
@@ -383,6 +387,7 @@
 				<![CDATA[
 						gbar.removeClass(this, "loading");
 						gbar.addClass(this, "deleted");
+						this.parentNode.removeChild(this);
 				]]>
 			</body>
 		</method>
