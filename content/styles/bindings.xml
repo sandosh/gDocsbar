@@ -321,11 +321,26 @@
 		<method name="nameSavedError">
 			<body>
 				<![CDATA[
-				gbar.removeClass(this, "loading");
+          gdListAPI.refreshEntry(this);
 				]]>
 			</body>
 		</method>
 		<method name="nameSaved">
+			<parameter name="data" />
+			<body>
+				<![CDATA[
+          gdListAPI.refreshEntry(this);
+				]]>
+			</body>
+		</method>
+		<method name="refreshEntryError">
+			<body>
+				<![CDATA[
+				  gbar.removeClass(this, "loading");
+				]]>
+			</body>
+		</method>
+		<method name="refreshEntrySuccess">
 			<parameter name="data" />
 			<body>
 				<![CDATA[
@@ -464,11 +479,26 @@
 		<method name="nameSavedError">
 			<body>
 				<![CDATA[
-				gbar.removeClass(this, "loading");
+          gdListAPI.refreshEntry(this);
 				]]>
 			</body>
 		</method>
 		<method name="nameSaved">
+			<parameter name="data" />
+			<body>
+        <![CDATA[
+          gdListAPI.refreshEntry(this);
+				]]>
+			</body>
+		</method>
+		<method name="refreshEntryError">
+			<body>
+				<![CDATA[
+				gbar.removeClass(this, "loading");
+				]]>
+			</body>
+		</method>
+		<method name="refreshEntrySuccess">
 			<parameter name="data" />
 			<body>
 				<![CDATA[
