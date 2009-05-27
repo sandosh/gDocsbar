@@ -434,17 +434,21 @@ gdListAPI.extend({
     },
     download: function(gdEntryEl,format, folder) {
         //debug("in download");
-        debug(format)
+        debug(format);
+        var auth = null;
         resource = gdEntryEl.getAttribute('resource');
         
         var fmCmd = {"pdf" : 12, "xls" : 4, "csv" : 5, "ods" : 13, "tsv" : 23, "html" : 102 };
         key = gdEntryEl.getAttribute('resourceId');
         if(resource == "spreadsheet") {
-          var url = this.spreadsheetExport + "?key=" + key +"&fmcmd=" + fmCmd[format] + "&auth=" + this._auth2;
+          var url = this.spreadsheetExport + "?key=" + key +"&fmcmd=" + fmCmd[format];
+          auth = this._auth2;
         } else if(resource == "presentation") {
           var url =  this.presentationExport + "?docID="+ key +"&exportFormat=" + format
+          auth = this._auth;
         } else {
           var url = this.documentExport + "?docID="+ key +"&exportFormat=" + format
+          auth = this._auth;
         }
         
         debug(url);
@@ -489,9 +493,9 @@ gdListAPI.extend({
         var wbp = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(Components.interfaces.nsIWebBrowserPersist);
         var dl = dm.addDownload(0, uri, fileURI, file.leafName, null, 0, null, wbp);
         wbp.progressListener = dl;
-
+        debug("auth = " + auth);
         wbp.persistFlags &= ~Components.interfaces.nsIWebBrowserPersist.PERSIST_FLAGS_NO_CONVERSION; 
-        wbp.saveURI(uri,null,null,null,"Authorization:GoogleLogin auth=" + this._auth +"\r\n",file);
+        wbp.saveURI(uri,null,null,null,"Authorization:GoogleLogin auth=" + auth +"\r\n",file);
     },
     getFolders: function(){
         this.resetOptions();
