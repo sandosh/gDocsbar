@@ -10,6 +10,7 @@ function init() {
     this.nsIObserverService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
     this.loggedIn = false;
     this.email = null;
+    this.loginStep = 1;
     debug("gdocsbar comp init done...");
 }
 
@@ -45,6 +46,10 @@ function logout(){
 }
 
 function login(email, password, captchaValue){
+    this.email = email;
+    this.password = password;
+    this.captchaValue = captchaValue;
+    
     var req = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Components.interfaces.nsIXMLHttpRequest);
     req.open("POST", this._loginurl, true);
     req.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
@@ -52,14 +57,20 @@ function login(email, password, captchaValue){
 	    if (req.readyState == 4) {
 	        debug(req.responseText);
 	        debug("got authinfo");
-	        this._loginResponse = response = parseResponse(req.responseText);
-	        debug(response, req.status);
-		     if(req.status == 200){
+	        if(req.status == 200 && this.loginStep == 1){
+	            this.loginStep = 2;
+	            this._loginResponse = response = parseResponse(req.responseText);
+	            this.login(this.email, this.password, this.captchaValue);
+	        }
+		     else if(req.status == 200 && this.loginStep == 2){
+		         this._loginResponse2 = response = parseResponse(req.responseText);
 		         this.loggedIn = true;
-		         this.globalNotify(response,"login-success");
+		         this.globalNotify({auth1: this._loginResponse, auth2: this._loginResponse2},"login-success");
+		         this.loginStep = 1;
 	         }else{
 	             this.globalNotify(response,"login-error");
 	             this.loggedIn = false;
+	             this.loginStep = 1;
 	         }
 	         
          }
@@ -68,7 +79,11 @@ function login(email, password, captchaValue){
     //accountType=HOSTED_OR_GOOGLE&Email=jondoe@gmail.com&Passwd=north23AZ&service=cl&source=Gulp-CalGulp-1.05
     var data = "";
     data += "accountType="+encodeURIComponent(this._accountType)+"&";
-    data += "service="+encodeURIComponent(this._service)+"&";
+    if(this.loginStep == 1)
+        data += "service="+encodeURIComponent("writely")+"&";
+    else if(this.loginStep == 2)
+        data += "service="+encodeURIComponent("wise")+"&";
+        
     data += "source="+encodeURIComponent(this._source)+"&";
     
     if(this._loginResponse){

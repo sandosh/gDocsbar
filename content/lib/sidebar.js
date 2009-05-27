@@ -41,6 +41,7 @@ gbar = GDOCSBARUtils.extend({
     _uploadQ : [],
     _uploadStatus : false,
     init: function(){
+        
         (function(){
             $ = this.$;
             gbarc = Components.classes["@gdocsbar.com/gdocsbar;1"].getService(Components.interfaces.nsIGdocsBar);
@@ -74,6 +75,7 @@ gbar = GDOCSBARUtils.extend({
             wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
         }).bind(this)();
         
+        gbarc.reload();
         
         debug("sidebar init...");
         var gdocsbarobserver = new Object();
@@ -93,7 +95,8 @@ gbar = GDOCSBARUtils.extend({
                 $("login_btn").setAttribute('disabled', false);
                 login_loading.setAttribute('collapsed', true);
                 this.saveLoginInfo();
-                this.initLoggedInUser(auth);
+                debug(a);
+                this.initLoggedInUser(a.wrappedJSObject.auth1.auth, a.wrappedJSObject.auth2.auth);
                 break;
             }
         }).bind(this);
@@ -183,10 +186,10 @@ gbar = GDOCSBARUtils.extend({
         
         A.setAttribute('selected', true);
     },
-    initLoggedInUser: function(auth){
+    initLoggedInUser: function(auth1, auth2){
         page_login.setAttribute('collapsed', true);
         page_list.setAttribute('collapsed', false);
-        gdListAPI.init(auth);
+        gdListAPI.init(auth1, auth2);
 //        gbar.switchTab(topmenu_upload);
         this.getFullDocList();
         this.getFolderList();

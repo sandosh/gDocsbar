@@ -259,8 +259,10 @@ gdListAPI.extend({
     _options: null,
     _lasturl:null,
     _lastq:null,
-    init: function(auth){
-        this._auth = auth;
+    init: function(auth1, auth2){
+        this._auth = auth1;
+        this._auth2 = auth2;
+        debug("setting auth 2 "+ auth2);
         this._options = new Base;
         this._options.extend(this.__options);
     },
@@ -427,7 +429,7 @@ gdListAPI.extend({
         var fmCmd = {"pdf" : 12, "xls" : 4, "csv" : 5, "ods" : 13, "tsv" : 23, "html" : 102 };
         key = gdEntryEl.getAttribute('resourceId');
         if(resource == "spreadsheet") {
-          var url = this.spreadsheetExport + "?key=" + key +"&fmcmd=" + fmCmd[format];
+          var url = this.spreadsheetExport + "?key=" + key +"&fmcmd=" + fmCmd[format] + "&auth=" + this._auth2;
         } else if(resource == "presentation") {
           var url =  this.presentationExport + "?docID="+ key +"&exportFormat=" + format
         } else {
