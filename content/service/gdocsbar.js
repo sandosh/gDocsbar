@@ -70,7 +70,6 @@ function login(email, password, captchaValue){
 	         }else{
 	             this.globalNotify(response,"login-error");
 	             this.loggedIn = false;
-	             this.loginStep = 1;
 	         }
 	         
          }

@@ -27,7 +27,7 @@ mybox{
 
 gdocument{
     -moz-binding:url(chrome://gdocsbar/content/styles/bindings.xml#document);
-	background: white no-repeat 25px 7px;
+	background: white no-repeat right 7px;
 	padding:5px;
 	border-bottom: 1px solid #EFEFEF;
 	-moz-box-orient:vertical;
@@ -94,7 +94,6 @@ gdocument.deleted {
 }
 
 gdocument description.name{
-    margin-left:25px;
     font-weight:bold;
     color:#333;
     cursor:pointer;
@@ -103,19 +102,19 @@ gdocument description:hover{
     border-bottom:1px solid blue;
     color:blue;
 }
-gdocument.folder{
+gicon.folder{
     background-image:url(chrome://gdocsbar/content/images/icon/icon_4_folder.gif);
 }
-gdocument.document{
+gicon.document{
     background-image:url(chrome://gdocsbar/content/images/icon/icon_4_doc.gif);
 }
-gdocument.presentation, gicon.presentation{
+gicon.presentation{
     background-image:url(chrome://gdocsbar/content/images/icon/icon_4_pres.gif);
 }
-gdocument.pdf{
+gicon.pdf{
     background-image:url(chrome://gdocsbar/content/images/icon/icon_4_pdf.gif);
 }
-gdocument.spreadsheet{
+gicon.spreadsheet{
     background-image:url(chrome://gdocsbar/content/images/icon/icon_4_spread.gif);
 }
 
